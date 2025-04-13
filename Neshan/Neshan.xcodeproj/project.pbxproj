@@ -1,0 +1,717 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		551BD81E2DA131950072A857 /* DoneCoordinatorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD81C2DA131950072A857 /* DoneCoordinatorResult.swift */; };
+		551BD81F2DA131950072A857 /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD81D2DA131950072A857 /* BaseCoordinator.swift */; };
+		551BD8222DA131E20072A857 /* BaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8212DA131E20072A857 /* BaseViewModel.swift */; };
+		551BD8242DA132120072A857 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8232DA132120072A857 /* AppCoordinator.swift */; };
+		551BD8272DA1323E0072A857 /* BaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8262DA1323E0072A857 /* BaseService.swift */; };
+		551BD82F2DA132630072A857 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8292DA132630072A857 /* RequestManager.swift */; };
+		551BD8322DA132630072A857 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD82C2DA132630072A857 /* Router.swift */; };
+		551BD8332DA132630072A857 /* NetworkLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD82D2DA132630072A857 /* NetworkLogger.swift */; };
+		551BD83A2DA132AB0072A857 /* TabbarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8362DA132AB0072A857 /* TabbarCoordinator.swift */; };
+		551BD83B2DA132AB0072A857 /* TabbarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8372DA132AB0072A857 /* TabbarViewModel.swift */; };
+		551BD83C2DA132AB0072A857 /* TabbarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD8382DA132AB0072A857 /* TabbarViewController.xib */; };
+		551BD83D2DA132AB0072A857 /* TabbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8392DA132AB0072A857 /* TabbarViewController.swift */; };
+		551BD8402DA152490072A857 /* DemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD83E2DA152490072A857 /* DemoViewController.swift */; };
+		551BD8412DA152490072A857 /* DemoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD83F2DA152490072A857 /* DemoViewController.xib */; };
+		551BD8432DA152A60072A857 /* DemoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8422DA152A60072A857 /* DemoCoordinator.swift */; };
+		551BD8452DA16A370072A857 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8442DA16A370072A857 /* AppError.swift */; };
+		551BD8472DA18E990072A857 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8462DA18E990072A857 /* Constants.swift */; };
+		551BD84A2DA26A0C0072A857 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8482DA26A0C0072A857 /* SplashScreen.swift */; };
+		551BD84B2DA26A0C0072A857 /* SplashScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD8492DA26A0C0072A857 /* SplashScreen.xib */; };
+		551BD84D2DA26A1C0072A857 /* SplashCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD84C2DA26A1C0072A857 /* SplashCoordinator.swift */; };
+		551BD84F2DA26C5A0072A857 /* SplashViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD84E2DA26C5A0072A857 /* SplashViewModel.swift */; };
+		551BD8542DA277490072A857 /* ViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8532DA277490072A857 /* ViewController+Extension.swift */; };
+		551BD85B2DA2783B0072A857 /* MapCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD85A2DA2783B0072A857 /* MapCoordinator.swift */; };
+		551BD8602DA27DD70072A857 /* SearchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD85E2DA27DD60072A857 /* SearchScreen.swift */; };
+		551BD8612DA27DD70072A857 /* SearchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD85F2DA27DD60072A857 /* SearchScreen.xib */; };
+		551BD8642DA27DF20072A857 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8632DA27DF20072A857 /* SearchCoordinator.swift */; };
+		551BD8662DA27E040072A857 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8652DA27E040072A857 /* SearchViewModel.swift */; };
+		551BD8692DA27E920072A857 /* ExploreScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8672DA27E920072A857 /* ExploreScreen.swift */; };
+		551BD86A2DA27E920072A857 /* ExploreScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD8682DA27E920072A857 /* ExploreScreen.xib */; };
+		551BD86C2DA27EAE0072A857 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD86B2DA27EAE0072A857 /* ExploreViewModel.swift */; };
+		551BD86E2DA27EC40072A857 /* ExploreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD86D2DA27EC40072A857 /* ExploreCoordinator.swift */; };
+		551BD8712DA28A380072A857 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8702DA28A380072A857 /* MapViewModel.swift */; };
+		551BD8952DA2C08E0072A857 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551BD8942DA2C08E0072A857 /* LaunchScreen.storyboard */; };
+		551BD8972DA3A44C0072A857 /* SearchRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8962DA3A44C0072A857 /* SearchRouter.swift */; };
+		551BD8992DA3A45A0072A857 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8982DA3A45A0072A857 /* SearchService.swift */; };
+		551BD89C2DA3B3F30072A857 /* SearchResponseDto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD89B2DA3B3F30072A857 /* SearchResponseDto.swift */; };
+		552850B92D9820100020EB03 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552850B82D9820100020EB03 /* AppDelegate.swift */; };
+		552850BD2D9820100020EB03 /* MapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552850BC2D9820100020EB03 /* MapScreen.swift */; };
+		552850C22D9820110020EB03 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 552850C12D9820110020EB03 /* Assets.xcassets */; };
+		55F1015A2D985A3F00D0226F /* MapScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55F101592D985A3F00D0226F /* MapScreen.xib */; };
+		55F1015C2D985F2000D0226F /* neshan.license in Resources */ = {isa = PBXBuildFile; fileRef = 55F1015B2D985F2000D0226F /* neshan.license */; };
+		C1474C6E305A0E44AD6C4BDA /* Pods_Neshan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		551BD81C2DA131950072A857 /* DoneCoordinatorResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoneCoordinatorResult.swift; sourceTree = "<group>"; };
+		551BD81D2DA131950072A857 /* BaseCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
+		551BD8212DA131E20072A857 /* BaseViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseViewModel.swift; sourceTree = "<group>"; };
+		551BD8232DA132120072A857 /* AppCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		551BD8262DA1323E0072A857 /* BaseService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseService.swift; sourceTree = "<group>"; };
+		551BD8292DA132630072A857 /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
+		551BD82C2DA132630072A857 /* Router.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
+		551BD82D2DA132630072A857 /* NetworkLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkLogger.swift; sourceTree = "<group>"; };
+		551BD8362DA132AB0072A857 /* TabbarCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabbarCoordinator.swift; sourceTree = "<group>"; };
+		551BD8372DA132AB0072A857 /* TabbarViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabbarViewModel.swift; sourceTree = "<group>"; };
+		551BD8382DA132AB0072A857 /* TabbarViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TabbarViewController.xib; sourceTree = "<group>"; };
+		551BD8392DA132AB0072A857 /* TabbarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabbarViewController.swift; sourceTree = "<group>"; };
+		551BD83E2DA152490072A857 /* DemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoViewController.swift; sourceTree = "<group>"; };
+		551BD83F2DA152490072A857 /* DemoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DemoViewController.xib; sourceTree = "<group>"; };
+		551BD8422DA152A60072A857 /* DemoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCoordinator.swift; sourceTree = "<group>"; };
+		551BD8442DA16A370072A857 /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		551BD8462DA18E990072A857 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		551BD8482DA26A0C0072A857 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
+		551BD8492DA26A0C0072A857 /* SplashScreen.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SplashScreen.xib; sourceTree = "<group>"; };
+		551BD84C2DA26A1C0072A857 /* SplashCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashCoordinator.swift; sourceTree = "<group>"; };
+		551BD84E2DA26C5A0072A857 /* SplashViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewModel.swift; sourceTree = "<group>"; };
+		551BD8532DA277490072A857 /* ViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Extension.swift"; sourceTree = "<group>"; };
+		551BD85A2DA2783B0072A857 /* MapCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCoordinator.swift; sourceTree = "<group>"; };
+		551BD85E2DA27DD60072A857 /* SearchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScreen.swift; sourceTree = "<group>"; };
+		551BD85F2DA27DD60072A857 /* SearchScreen.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchScreen.xib; sourceTree = "<group>"; };
+		551BD8632DA27DF20072A857 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
+		551BD8652DA27E040072A857 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		551BD8672DA27E920072A857 /* ExploreScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreScreen.swift; sourceTree = "<group>"; };
+		551BD8682DA27E920072A857 /* ExploreScreen.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ExploreScreen.xib; sourceTree = "<group>"; };
+		551BD86B2DA27EAE0072A857 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
+		551BD86D2DA27EC40072A857 /* ExploreCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCoordinator.swift; sourceTree = "<group>"; };
+		551BD8702DA28A380072A857 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		551BD8942DA2C08E0072A857 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		551BD8962DA3A44C0072A857 /* SearchRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRouter.swift; sourceTree = "<group>"; };
+		551BD8982DA3A45A0072A857 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
+		551BD89B2DA3B3F30072A857 /* SearchResponseDto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResponseDto.swift; sourceTree = "<group>"; };
+		552850B52D9820100020EB03 /* Neshan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Neshan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		552850B82D9820100020EB03 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		552850BC2D9820100020EB03 /* MapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapScreen.swift; sourceTree = "<group>"; };
+		552850C12D9820110020EB03 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		552850C62D9820110020EB03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		552850CC2D982A090020EB03 /* NeshanBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NeshanBridgingHeader.h; sourceTree = "<group>"; };
+		55F101592D985A3F00D0226F /* MapScreen.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MapScreen.xib; sourceTree = "<group>"; };
+		55F1015B2D985F2000D0226F /* neshan.license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = neshan.license; sourceTree = "<group>"; };
+		6908C0A9A1FFA897D18452E2 /* Pods-Neshan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Neshan.debug.xcconfig"; path = "Target Support Files/Pods-Neshan/Pods-Neshan.debug.xcconfig"; sourceTree = "<group>"; };
+		B5F37472E377B740A80BC7FF /* Pods-Neshan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Neshan.release.xcconfig"; path = "Target Support Files/Pods-Neshan/Pods-Neshan.release.xcconfig"; sourceTree = "<group>"; };
+		DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Neshan.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		552850B22D9820100020EB03 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1474C6E305A0E44AD6C4BDA /* Pods_Neshan.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08814E42BB4F509820FCD087 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		42B430BE128A5D93FE0ECA66 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6908C0A9A1FFA897D18452E2 /* Pods-Neshan.debug.xcconfig */,
+				B5F37472E377B740A80BC7FF /* Pods-Neshan.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		551BD81B2DA131950072A857 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8232DA132120072A857 /* AppCoordinator.swift */,
+				551BD81C2DA131950072A857 /* DoneCoordinatorResult.swift */,
+				551BD81D2DA131950072A857 /* BaseCoordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		551BD8202DA131E20072A857 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8212DA131E20072A857 /* BaseViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		551BD8252DA1323E0072A857 /* Base Service */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8262DA1323E0072A857 /* BaseService.swift */,
+			);
+			path = "Base Service";
+			sourceTree = "<group>";
+		};
+		551BD8282DA132630072A857 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8292DA132630072A857 /* RequestManager.swift */,
+				551BD82C2DA132630072A857 /* Router.swift */,
+				551BD82D2DA132630072A857 /* NetworkLogger.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		551BD8352DA132AB0072A857 /* Tabbar */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8362DA132AB0072A857 /* TabbarCoordinator.swift */,
+				551BD8372DA132AB0072A857 /* TabbarViewModel.swift */,
+				551BD8382DA132AB0072A857 /* TabbarViewController.xib */,
+				551BD8392DA132AB0072A857 /* TabbarViewController.swift */,
+			);
+			path = Tabbar;
+			sourceTree = "<group>";
+		};
+		551BD8502DA2768B0072A857 /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				551BD83E2DA152490072A857 /* DemoViewController.swift */,
+				551BD83F2DA152490072A857 /* DemoViewController.xib */,
+				551BD8422DA152A60072A857 /* DemoCoordinator.swift */,
+			);
+			path = Demo;
+			sourceTree = "<group>";
+		};
+		551BD8512DA2769B0072A857 /* Splash */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8482DA26A0C0072A857 /* SplashScreen.swift */,
+				551BD8492DA26A0C0072A857 /* SplashScreen.xib */,
+				551BD84C2DA26A1C0072A857 /* SplashCoordinator.swift */,
+				551BD84E2DA26C5A0072A857 /* SplashViewModel.swift */,
+			);
+			path = Splash;
+			sourceTree = "<group>";
+		};
+		551BD8522DA276D80072A857 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				552850CC2D982A090020EB03 /* NeshanBridgingHeader.h */,
+				552850B82D9820100020EB03 /* AppDelegate.swift */,
+				552850C12D9820110020EB03 /* Assets.xcassets */,
+				552850C62D9820110020EB03 /* Info.plist */,
+				551BD8942DA2C08E0072A857 /* LaunchScreen.storyboard */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		551BD8552DA2776C0072A857 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8532DA277490072A857 /* ViewController+Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		551BD8562DA277900072A857 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8442DA16A370072A857 /* AppError.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		551BD8572DA277D50072A857 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8462DA18E990072A857 /* Constants.swift */,
+				551BD8562DA277900072A857 /* Utility */,
+				551BD8552DA2776C0072A857 /* Extensions */,
+				551BD8282DA132630072A857 /* Networking */,
+				551BD8252DA1323E0072A857 /* Base Service */,
+				551BD81B2DA131950072A857 /* Coordinator */,
+				551BD8202DA131E20072A857 /* ViewModel */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		551BD8582DA278090072A857 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				552850BC2D9820100020EB03 /* MapScreen.swift */,
+				55F101592D985A3F00D0226F /* MapScreen.xib */,
+				551BD85A2DA2783B0072A857 /* MapCoordinator.swift */,
+				551BD8702DA28A380072A857 /* MapViewModel.swift */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		551BD8592DA278150072A857 /* Module */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8352DA132AB0072A857 /* Tabbar */,
+				551BD8582DA278090072A857 /* Map */,
+				551BD8502DA2768B0072A857 /* Demo */,
+				551BD8512DA2769B0072A857 /* Splash */,
+				551BD8622DA27DDE0072A857 /* Search */,
+				551BD86F2DA27ECC0072A857 /* Explore */,
+			);
+			path = Module;
+			sourceTree = "<group>";
+		};
+		551BD8622DA27DDE0072A857 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				551BD85E2DA27DD60072A857 /* SearchScreen.swift */,
+				551BD85F2DA27DD60072A857 /* SearchScreen.xib */,
+				551BD8632DA27DF20072A857 /* SearchCoordinator.swift */,
+				551BD8652DA27E040072A857 /* SearchViewModel.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		551BD86F2DA27ECC0072A857 /* Explore */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8672DA27E920072A857 /* ExploreScreen.swift */,
+				551BD8682DA27E920072A857 /* ExploreScreen.xib */,
+				551BD86B2DA27EAE0072A857 /* ExploreViewModel.swift */,
+				551BD86D2DA27EC40072A857 /* ExploreCoordinator.swift */,
+			);
+			path = Explore;
+			sourceTree = "<group>";
+		};
+		551BD89A2DA3A4630072A857 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				551BD8962DA3A44C0072A857 /* SearchRouter.swift */,
+				551BD8982DA3A45A0072A857 /* SearchService.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		551BD89D2DA3B3F80072A857 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				551BD89B2DA3B3F30072A857 /* SearchResponseDto.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		552850AC2D9820100020EB03 = {
+			isa = PBXGroup;
+			children = (
+				552850B72D9820100020EB03 /* Neshan */,
+				552850B62D9820100020EB03 /* Products */,
+				42B430BE128A5D93FE0ECA66 /* Pods */,
+				08814E42BB4F509820FCD087 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		552850B62D9820100020EB03 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				552850B52D9820100020EB03 /* Neshan.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		552850B72D9820100020EB03 /* Neshan */ = {
+			isa = PBXGroup;
+			children = (
+				55F1015B2D985F2000D0226F /* neshan.license */,
+				551BD89A2DA3A4630072A857 /* Service */,
+				551BD89D2DA3B3F80072A857 /* Model */,
+				551BD8572DA277D50072A857 /* Common */,
+				551BD8522DA276D80072A857 /* Supporting Files */,
+				551BD8592DA278150072A857 /* Module */,
+			);
+			path = Neshan;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		552850B42D9820100020EB03 /* Neshan */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 552850C92D9820110020EB03 /* Build configuration list for PBXNativeTarget "Neshan" */;
+			buildPhases = (
+				C15374CE75FD87B18776094A /* [CP] Check Pods Manifest.lock */,
+				552850B12D9820100020EB03 /* Sources */,
+				552850B22D9820100020EB03 /* Frameworks */,
+				552850B32D9820100020EB03 /* Resources */,
+				C2E89A9B87F6D7987F2A078B /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Neshan;
+			productName = Neshan;
+			productReference = 552850B52D9820100020EB03 /* Neshan.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		552850AD2D9820100020EB03 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					552850B42D9820100020EB03 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = 552850B02D9820100020EB03 /* Build configuration list for PBXProject "Neshan" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 552850AC2D9820100020EB03;
+			productRefGroup = 552850B62D9820100020EB03 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				552850B42D9820100020EB03 /* Neshan */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		552850B32D9820100020EB03 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				551BD8952DA2C08E0072A857 /* LaunchScreen.storyboard in Resources */,
+				551BD83C2DA132AB0072A857 /* TabbarViewController.xib in Resources */,
+				551BD86A2DA27E920072A857 /* ExploreScreen.xib in Resources */,
+				55F1015A2D985A3F00D0226F /* MapScreen.xib in Resources */,
+				551BD84B2DA26A0C0072A857 /* SplashScreen.xib in Resources */,
+				552850C22D9820110020EB03 /* Assets.xcassets in Resources */,
+				55F1015C2D985F2000D0226F /* neshan.license in Resources */,
+				551BD8612DA27DD70072A857 /* SearchScreen.xib in Resources */,
+				551BD8412DA152490072A857 /* DemoViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C15374CE75FD87B18776094A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Neshan-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C2E89A9B87F6D7987F2A078B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Neshan/Pods-Neshan-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Neshan/Pods-Neshan-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Neshan/Pods-Neshan-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		552850B12D9820100020EB03 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				551BD84A2DA26A0C0072A857 /* SplashScreen.swift in Sources */,
+				551BD8402DA152490072A857 /* DemoViewController.swift in Sources */,
+				551BD8472DA18E990072A857 /* Constants.swift in Sources */,
+				551BD83D2DA132AB0072A857 /* TabbarViewController.swift in Sources */,
+				551BD8642DA27DF20072A857 /* SearchCoordinator.swift in Sources */,
+				551BD8452DA16A370072A857 /* AppError.swift in Sources */,
+				551BD8972DA3A44C0072A857 /* SearchRouter.swift in Sources */,
+				551BD83A2DA132AB0072A857 /* TabbarCoordinator.swift in Sources */,
+				551BD8332DA132630072A857 /* NetworkLogger.swift in Sources */,
+				551BD8322DA132630072A857 /* Router.swift in Sources */,
+				551BD8242DA132120072A857 /* AppCoordinator.swift in Sources */,
+				552850BD2D9820100020EB03 /* MapScreen.swift in Sources */,
+				551BD8222DA131E20072A857 /* BaseViewModel.swift in Sources */,
+				551BD83B2DA132AB0072A857 /* TabbarViewModel.swift in Sources */,
+				551BD82F2DA132630072A857 /* RequestManager.swift in Sources */,
+				551BD85B2DA2783B0072A857 /* MapCoordinator.swift in Sources */,
+				551BD81E2DA131950072A857 /* DoneCoordinatorResult.swift in Sources */,
+				551BD8432DA152A60072A857 /* DemoCoordinator.swift in Sources */,
+				551BD8712DA28A380072A857 /* MapViewModel.swift in Sources */,
+				551BD8602DA27DD70072A857 /* SearchScreen.swift in Sources */,
+				551BD8992DA3A45A0072A857 /* SearchService.swift in Sources */,
+				551BD84F2DA26C5A0072A857 /* SplashViewModel.swift in Sources */,
+				551BD8272DA1323E0072A857 /* BaseService.swift in Sources */,
+				551BD8542DA277490072A857 /* ViewController+Extension.swift in Sources */,
+				551BD8692DA27E920072A857 /* ExploreScreen.swift in Sources */,
+				551BD8662DA27E040072A857 /* SearchViewModel.swift in Sources */,
+				552850B92D9820100020EB03 /* AppDelegate.swift in Sources */,
+				551BD86C2DA27EAE0072A857 /* ExploreViewModel.swift in Sources */,
+				551BD84D2DA26A1C0072A857 /* SplashCoordinator.swift in Sources */,
+				551BD86E2DA27EC40072A857 /* ExploreCoordinator.swift in Sources */,
+				551BD89C2DA3B3F30072A857 /* SearchResponseDto.swift in Sources */,
+				551BD81F2DA131950072A857 /* BaseCoordinator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		552850C72D9820110020EB03 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		552850C82D9820110020EB03 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		552850CA2D9820110020EB03 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6908C0A9A1FFA897D18452E2 /* Pods-Neshan.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Neshan/Supporting Files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Always Access to Location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "When in use access to location";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 gps Location-services";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.neshan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Neshan/Supporting Files/NeshanBridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		552850CB2D9820110020EB03 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B5F37472E377B740A80BC7FF /* Pods-Neshan.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Neshan/Supporting Files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Always Access to Location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "When in use access to location";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 gps Location-services";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.neshan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Neshan/Supporting Files/NeshanBridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		552850B02D9820100020EB03 /* Build configuration list for PBXProject "Neshan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				552850C72D9820110020EB03 /* Debug */,
+				552850C82D9820110020EB03 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		552850C92D9820110020EB03 /* Build configuration list for PBXNativeTarget "Neshan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				552850CA2D9820110020EB03 /* Debug */,
+				552850CB2D9820110020EB03 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 552850AD2D9820100020EB03 /* Project object */;
+}
