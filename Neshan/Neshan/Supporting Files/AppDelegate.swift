@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import IQKeyboardManagerSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,8 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         self.window = UIWindow(frame: UIScreen.main.bounds)
+        IQKeyboardManager.shared.isEnabled = true
         AppCoordinator().start().subscribe().disposed(by: self.disposeBag)
-        
       return true
     }
 

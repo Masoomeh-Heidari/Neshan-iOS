@@ -10,6 +10,7 @@ target 'Neshan' do
   pod 'RxCocoa'
   pod 'NeshanMobileSDK', '~> 0.9.5'
   pod 'FittedSheets'
+  pod 'IQKeyboardManagerSwift'
 
 end
 
