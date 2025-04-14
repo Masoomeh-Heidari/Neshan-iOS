@@ -21,22 +21,12 @@ class MapCoordinator: BaseCoordinator<Void> {
         let vm = MapViewModel()
         let vc = MapScreen(viewModel: vm)
         
-//        vm.hideExplore.subscribe(onNext: {[weak self] _ in
-//            guard let self else { return }
-//            vc.navigationController?.viewControllers.first?.dismiss()
-//        }).disposed(by: disposeBag)
-//        
-//        vm.showExplore.flatMap { [weak self] loc -> Observable<(x: Double,y: Double)?> in
-//            guard let self else { return .empty() }
-//            return self.showExploreBottomSheet(using: loc, rootViewController: vc)
-//        }.filter { $0 != nil }
-//         .map { $0! }
-//         .flatMap { item -> Observable<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto])?> in
-//             return self.goToSearchScreen(using: item, rootViewController: vc)
-//         }.filter { $0 != nil }
-//            .map { $0! }
-//        .bind(to: vm.showSearchBox)
-//        .disposed(by: disposeBag)
+        vm.showSearch.flatMap { item in
+             return self.goToSearchScreen(using: item, rootViewController: vc)
+         }.filter { $0 != nil }
+            .map { $0! }
+        .bind(to: vm.showSearchBox)
+        .disposed(by: disposeBag)
         
         navigationController.setViewControllers([vc], animated: false)
         

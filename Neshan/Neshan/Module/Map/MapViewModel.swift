@@ -11,7 +11,7 @@ import RxSwift
 class MapViewModel: BaseViewModel {
     
     let userLocation = PublishSubject<(x: Double,y: Double)>()
-    let showExplore = PublishSubject<(x: Double,y: Double)>()
+//    let showExplore = PublishSubject<(x: Double,y: Double)>()
     let hideExplore = PublishSubject<Void>()
     let showSearch = PublishSubject<(x: Double,y: Double)>()
     let showSearchResult = PublishSubject<Bool>()
