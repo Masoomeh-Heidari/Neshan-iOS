@@ -5,14 +5,16 @@
 //  Created by Amin Jalalian on 3/28/1402 AP.
 //
 
-import Foundation
-import UIKit
-import RxSwift
+import Combine
 
 class AppCoordinator: BaseCoordinator<Void> {
-    
-    override func start() -> Observable<Void> {
-        self.coordinate(to: SplashCoordinator()).subscribe().disposed(by: self.disposeBag)
-        return Observable.empty()
+        
+    override func start() -> AnyPublisher<Void, Never> {
+        coordinate(to: SplashCoordinator())
+            .sink { _ in }
+            .store(in: &cancellables)
+        
+        return Empty(completeImmediately: false)
+            .eraseToAnyPublisher()
     }
 }

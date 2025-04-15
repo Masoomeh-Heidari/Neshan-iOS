@@ -6,14 +6,13 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
 import CoreLocation
+import Combine
 
 class MapScreen: UIViewController {
     let viewModel: MapViewModel
 
-    private let disposeBag = DisposeBag()
+    private var cancellables = Set<AnyCancellable>()
 
     var mapview:NTMapView?
     var locationManager:CLLocationManager!
@@ -32,6 +31,7 @@ class MapScreen: UIViewController {
     let currenLocalButton = UIButton()
     let searchViewContainer = UIView()
 
+    
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
         super.init(nibName: String(describing: Self.self), bundle: nil)
@@ -42,7 +42,7 @@ class MapScreen: UIViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        self.viewModel.hideExplore.onNext(())
+        self.viewModel.hideExplore.send(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -64,30 +64,40 @@ class MapScreen: UIViewController {
     }
     
     fileprivate func binding() {
-        self.viewModel.showSearchBox.subscribe(on: MainScheduler.instance).subscribe(onNext: {[weak self] items in
-            guard let self else { return }
-            self.currenLocalButton.isHidden = false
-            self.searchViewContainer.isHidden = false
-            self.searchLayer?.clear()
-            self.searchTerm = items.term
-            
-            let resultMarkers = self.getMarkers(by: items.result)
-            for item in resultMarkers {
-                searchLayer?.add(item)
+        self.viewModel.showSearchBox
+            .receive(on: RunLoop.main)
+            .sink { [weak self] items in
+                guard let self = self else { return }
+                self.currenLocalButton.isHidden = false
+                self.searchViewContainer.isHidden = false
+                self.searchLayer?.clear()
+                self.searchTerm = items.term
+
+                let resultMarkers = self.getMarkers(by: items.result)
+                for item in resultMarkers {
+                    self.searchLayer?.add(item)
+                }
+
+                if let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first {
+                    self.searchLayer?.add(selectedItemMarker)
+
+                    self.mapview?.setFocalPointPosition(
+                        NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y),
+                        durationSeconds: 0.4
+                    )
+                    self.mapview?.setZoom(16, durationSeconds: 0.4)
+                }
             }
-            
-            let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first!
-            searchLayer?.add(selectedItemMarker)
-                        
-            mapview?.setFocalPointPosition(NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y), durationSeconds: 0.4)
-            mapview?.setZoom(16, durationSeconds: 0.4)
-        }).disposed(by: self.disposeBag)
-        
-        self.viewModel.userLocation.subscribe(onNext: {[weak self] loc in
-            guard let self else { return }
-            self.userLocationLayer?.clear()
-            self.setUserCurrentLocation(using: loc)
-        }).disposed(by: self.disposeBag)
+            .store(in: &cancellables)
+
+        self.viewModel.userLocation
+            .receive(on: RunLoop.main)
+            .sink { [weak self] loc in
+                guard let self = self else { return }
+                self.userLocationLayer?.clear()
+                self.setUserCurrentLocation(using: loc)
+            }
+            .store(in: &cancellables)
     }
 
     fileprivate func initUserLocation() {
@@ -174,7 +184,9 @@ class MapScreen: UIViewController {
         let userLocation = self.locationManager.location
         self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
         self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        self.viewModel.showSearch.onNext((x: self.lat, y: self.lng))
+        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
+        self.viewModel.showSearch.send(completion: .finished)
+
     }
     
     fileprivate func getMarkers(by items: [SearchItemDto], hasAnimated: Bool = false) -> [NTMarker] {
@@ -248,7 +260,7 @@ extension MapScreen: CLLocationManagerDelegate {
         self.lat = userLocation.coordinate.longitude
         self.lng = userLocation.coordinate.latitude
         
-        self.viewModel.userLocation.onNext((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
+        self.viewModel.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
     }
     
     fileprivate func checkLocationAuthorization(using manager: CLLocationManager) {
