@@ -6,15 +6,13 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
 import CoreLocation
+import Combine
 
 class MapScreen: UIViewController {
     let viewModel: MapViewModel
 
-    @IBOutlet weak var currentLocationButton: UIButton!
-    private let disposeBag = DisposeBag()
+    private var cancellables = Set<AnyCancellable>()
 
     var mapview:NTMapView?
     var locationManager:CLLocationManager!
@@ -30,6 +28,10 @@ class MapScreen: UIViewController {
     
     var searchTerm: String = ""
 
+    let currenLocalButton = UIButton()
+    let searchViewContainer = UIView()
+
+    
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
         super.init(nibName: String(describing: Self.self), bundle: nil)
@@ -40,7 +42,7 @@ class MapScreen: UIViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        self.viewModel.hideExplore.onNext(())
+        self.viewModel.hideExplore.send(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -62,29 +64,40 @@ class MapScreen: UIViewController {
     }
     
     fileprivate func binding() {
-        self.viewModel.showSearchBox.subscribe(on: MainScheduler.instance).subscribe(onNext: {[weak self] items in
-            guard let self else { return }
-            self.searchLayer?.clear()
-            self.searchTerm = items.term
-            
-            let resultMarkers = self.getMarkers(by: items.result)
-            for item in resultMarkers {
-                searchLayer?.add(item)
+        self.viewModel.showSearchBox
+            .receive(on: RunLoop.main)
+            .sink { [weak self] items in
+                guard let self = self else { return }
+                self.currenLocalButton.isHidden = false
+                self.searchViewContainer.isHidden = false
+                self.searchLayer?.clear()
+                self.searchTerm = items.term
+
+                let resultMarkers = self.getMarkers(by: items.result)
+                for item in resultMarkers {
+                    self.searchLayer?.add(item)
+                }
+
+                if let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first {
+                    self.searchLayer?.add(selectedItemMarker)
+
+                    self.mapview?.setFocalPointPosition(
+                        NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y),
+                        durationSeconds: 0.4
+                    )
+                    self.mapview?.setZoom(16, durationSeconds: 0.4)
+                }
             }
-            
-            let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first!
-            searchLayer?.add(selectedItemMarker)
-                        
-            mapview?.setFocalPointPosition(NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y), durationSeconds: 0.4)
-            mapview?.setZoom(16, durationSeconds: 0.4)
-        }).disposed(by: self.disposeBag)
-        
-        self.viewModel.userLocation.subscribe(onNext: {[weak self] loc in
-            guard let self else { return }
-            self.viewModel.showExplore.onNext((x: loc.x, y: loc.y))
-            self.userLocationLayer?.clear()
-            self.setUserCurrentLocation(using: loc)
-        }).disposed(by: self.disposeBag)
+            .store(in: &cancellables)
+
+        self.viewModel.userLocation
+            .receive(on: RunLoop.main)
+            .sink { [weak self] loc in
+                guard let self = self else { return }
+                self.userLocationLayer?.clear()
+                self.setUserCurrentLocation(using: loc)
+            }
+            .store(in: &cancellables)
     }
 
     fileprivate func initUserLocation() {
@@ -116,48 +129,64 @@ class MapScreen: UIViewController {
         mapview?.getLayers().add(searchLayer)
 
         view = mapview
-        self.mapview?.bringSubviewToFront(self.currentLocationButton)
-        
         setupBottomView()
     }
     
     func setupBottomView() {
-        let button = UIButton()
-        button.setImage(UIImage(named: "current_target"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(button)
-        button.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
+        searchViewContainer.backgroundColor = .white
+        searchViewContainer.translatesAutoresizingMaskIntoConstraints = false
+        searchViewContainer.isUserInteractionEnabled = true
+        searchViewContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSearch)))
+        self.mapview?.addSubview(searchViewContainer)
         NSLayoutConstraint.activate([
-            button.trailingAnchor.constraint(equalTo: view.trailingAnchor,constant: -16),
-            button.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            button.widthAnchor.constraint(equalToConstant: 30),
-            button.heightAnchor.constraint(equalToConstant: 30)
+            searchViewContainer.trailingAnchor.constraint(equalTo: mapview!.trailingAnchor, constant: 0),
+            searchViewContainer.leadingAnchor.constraint(equalTo: mapview!.leadingAnchor, constant: 0),
+            searchViewContainer.bottomAnchor.constraint(equalTo: mapview!.bottomAnchor, constant: -8),
+            searchViewContainer.heightAnchor.constraint(equalToConstant: 60)
         ])
-        self.mapview?.addSubview(button)
+        
+        currenLocalButton.setImage(UIImage(named: "current_target"), for: .normal)
+        currenLocalButton.translatesAutoresizingMaskIntoConstraints = false
+        mapview?.addSubview(currenLocalButton)
+        currenLocalButton.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
+        NSLayoutConstraint.activate([
+            currenLocalButton.trailingAnchor.constraint(equalTo: mapview!.trailingAnchor,constant: -16),
+            currenLocalButton.bottomAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: -16),
+            currenLocalButton.widthAnchor.constraint(equalToConstant: 30),
+            currenLocalButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
         
         let textField = UITextField()
+        textField.borderStyle = .none
+        textField.backgroundColor = UIColor(white: 6.0, alpha: 8.0)
+        textField.semanticContentAttribute = .forceRightToLeft
+        textField.layer.cornerRadius = 8
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.textAlignment = .right
+        textField.placeholder = "جستجو"
+        textField.isEnabled = false
+     
+        self.searchViewContainer.addSubview(textField)
         textField.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            button.trailingAnchor.constraint(equalTo: view.trailingAnchor,constant: -16),
-            button.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            button.widthAnchor.constraint(equalToConstant: 30),
-            button.heightAnchor.constraint(equalToConstant: 30)
+            textField.trailingAnchor.constraint(equalTo: searchViewContainer.trailingAnchor,constant: -8),
+            textField.leadingAnchor.constraint(equalTo: searchViewContainer.leadingAnchor,constant: 8),
+            textField.bottomAnchor.constraint(equalTo: searchViewContainer.bottomAnchor, constant: -8),
+            textField.topAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: 8)
+            
         ])
-        self.mapview?.addSubview(button)
-        
-        
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        self.mapview?.addSubview(view)
-        NSLayoutConstraint.activate([
-            view.trailingAnchor.constraint(equalTo: view.trailingAnchor,constant: -16),
-            view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            view.widthAnchor.constraint(equalToConstant: 30),
-            view.heightAnchor.constraint(equalToConstant: 30)
-        ])
-        self.mapview?.addSubview(button)
-        
-        
+    }
+    
+    @objc func goToSearch() {
+        self.currenLocalButton.isHidden = true
+        self.searchViewContainer.isHidden = true
+        let userLocation = self.locationManager.location
+        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
+        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
+        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
+        self.viewModel.showSearch.send(completion: .finished)
+
     }
     
     fileprivate func getMarkers(by items: [SearchItemDto], hasAnimated: Bool = false) -> [NTMarker] {
@@ -218,15 +247,6 @@ class MapScreen: UIViewController {
         mapview?.setFocalPointPosition(NTLngLat(x: loc.x, y: loc.y), durationSeconds: 0.4)
         mapview?.setZoom(16, durationSeconds: 0.4)
     }
-    
-    @IBAction func currentLocationButtonAction(_ sender: Any) {
-        let userLocation = self.locationManager.location
-        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
-        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        
-        self.viewModel.userLocation.onNext((x: self.lat, y: self.lng))
-    }
-    
 }
 
 extension MapScreen: CLLocationManagerDelegate {
@@ -240,7 +260,7 @@ extension MapScreen: CLLocationManagerDelegate {
         self.lat = userLocation.coordinate.longitude
         self.lng = userLocation.coordinate.latitude
         
-        self.viewModel.userLocation.onNext((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
+        self.viewModel.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
     }
     
     fileprivate func checkLocationAuthorization(using manager: CLLocationManager) {

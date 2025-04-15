@@ -6,21 +6,25 @@
 //
 
 import UIKit
-import RxSwift
+import Combine
+import IQKeyboardManagerSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
-    private let disposeBag = DisposeBag()
+    private var cancellables = Set<AnyCancellable>()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         self.window = UIWindow(frame: UIScreen.main.bounds)
-        AppCoordinator().start().subscribe().disposed(by: self.disposeBag)
+        IQKeyboardManager.shared.isEnabled = true
         
+        AppCoordinator()
+                  .start()
+                  .sink { _ in }
+                  .store(in: &cancellables)
       return true
     }
-
 
 }
 

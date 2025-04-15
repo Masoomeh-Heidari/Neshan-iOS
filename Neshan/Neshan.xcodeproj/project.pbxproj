@@ -34,10 +34,6 @@
 		551BD8612DA27DD70072A857 /* SearchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD85F2DA27DD60072A857 /* SearchScreen.xib */; };
 		551BD8642DA27DF20072A857 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8632DA27DF20072A857 /* SearchCoordinator.swift */; };
 		551BD8662DA27E040072A857 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8652DA27E040072A857 /* SearchViewModel.swift */; };
-		551BD8692DA27E920072A857 /* ExploreScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8672DA27E920072A857 /* ExploreScreen.swift */; };
-		551BD86A2DA27E920072A857 /* ExploreScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 551BD8682DA27E920072A857 /* ExploreScreen.xib */; };
-		551BD86C2DA27EAE0072A857 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD86B2DA27EAE0072A857 /* ExploreViewModel.swift */; };
-		551BD86E2DA27EC40072A857 /* ExploreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD86D2DA27EC40072A857 /* ExploreCoordinator.swift */; };
 		551BD8712DA28A380072A857 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8702DA28A380072A857 /* MapViewModel.swift */; };
 		551BD8952DA2C08E0072A857 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 551BD8942DA2C08E0072A857 /* LaunchScreen.storyboard */; };
 		551BD8972DA3A44C0072A857 /* SearchRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551BD8962DA3A44C0072A857 /* SearchRouter.swift */; };
@@ -79,10 +75,6 @@
 		551BD85F2DA27DD60072A857 /* SearchScreen.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchScreen.xib; sourceTree = "<group>"; };
 		551BD8632DA27DF20072A857 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
 		551BD8652DA27E040072A857 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
-		551BD8672DA27E920072A857 /* ExploreScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreScreen.swift; sourceTree = "<group>"; };
-		551BD8682DA27E920072A857 /* ExploreScreen.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ExploreScreen.xib; sourceTree = "<group>"; };
-		551BD86B2DA27EAE0072A857 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
-		551BD86D2DA27EC40072A857 /* ExploreCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCoordinator.swift; sourceTree = "<group>"; };
 		551BD8702DA28A380072A857 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		551BD8942DA2C08E0072A857 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		551BD8962DA3A44C0072A857 /* SearchRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRouter.swift; sourceTree = "<group>"; };
@@ -259,7 +251,6 @@
 				551BD8502DA2768B0072A857 /* Demo */,
 				551BD8512DA2769B0072A857 /* Splash */,
 				551BD8622DA27DDE0072A857 /* Search */,
-				551BD86F2DA27ECC0072A857 /* Explore */,
 			);
 			path = Module;
 			sourceTree = "<group>";
@@ -273,17 +264,6 @@
 				551BD8652DA27E040072A857 /* SearchViewModel.swift */,
 			);
 			path = Search;
-			sourceTree = "<group>";
-		};
-		551BD86F2DA27ECC0072A857 /* Explore */ = {
-			isa = PBXGroup;
-			children = (
-				551BD8672DA27E920072A857 /* ExploreScreen.swift */,
-				551BD8682DA27E920072A857 /* ExploreScreen.xib */,
-				551BD86B2DA27EAE0072A857 /* ExploreViewModel.swift */,
-				551BD86D2DA27EC40072A857 /* ExploreCoordinator.swift */,
-			);
-			path = Explore;
 			sourceTree = "<group>";
 		};
 		551BD89A2DA3A4630072A857 /* Service */ = {
@@ -396,7 +376,6 @@
 			files = (
 				551BD8952DA2C08E0072A857 /* LaunchScreen.storyboard in Resources */,
 				551BD83C2DA132AB0072A857 /* TabbarViewController.xib in Resources */,
-				551BD86A2DA27E920072A857 /* ExploreScreen.xib in Resources */,
 				55F1015A2D985A3F00D0226F /* MapScreen.xib in Resources */,
 				551BD84B2DA26A0C0072A857 /* SplashScreen.xib in Resources */,
 				552850C22D9820110020EB03 /* Assets.xcassets in Resources */,
@@ -439,9 +418,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Neshan/Pods-Neshan-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Neshan/Pods-Neshan-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -479,12 +462,9 @@
 				551BD84F2DA26C5A0072A857 /* SplashViewModel.swift in Sources */,
 				551BD8272DA1323E0072A857 /* BaseService.swift in Sources */,
 				551BD8542DA277490072A857 /* ViewController+Extension.swift in Sources */,
-				551BD8692DA27E920072A857 /* ExploreScreen.swift in Sources */,
 				551BD8662DA27E040072A857 /* SearchViewModel.swift in Sources */,
 				552850B92D9820100020EB03 /* AppDelegate.swift in Sources */,
-				551BD86C2DA27EAE0072A857 /* ExploreViewModel.swift in Sources */,
 				551BD84D2DA26A1C0072A857 /* SplashCoordinator.swift in Sources */,
-				551BD86E2DA27EC40072A857 /* ExploreCoordinator.swift in Sources */,
 				551BD89C2DA3B3F30072A857 /* SearchResponseDto.swift in Sources */,
 				551BD81F2DA131950072A857 /* BaseCoordinator.swift in Sources */,
 			);

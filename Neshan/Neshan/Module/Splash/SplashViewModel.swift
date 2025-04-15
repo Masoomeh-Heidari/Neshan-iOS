@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import RxSwift
+import Combine
 
 class SplashViewModel {
     
-    let goToTabbar = PublishSubject<Void>()
+    let goToTabbar = PassthroughSubject<Void, Never>() // Replaced PublishSubject with PassthroughSubject
     
 }
