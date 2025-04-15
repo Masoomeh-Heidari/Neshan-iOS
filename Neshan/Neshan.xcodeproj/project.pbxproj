@@ -95,7 +95,6 @@
 		6F7B40EC2DACE3D500CF77C1 /* DirectionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B40D72DACE3D500CF77C1 /* DirectionResponse.swift */; };
 		6F7B40ED2DACE3D500CF77C1 /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B40DC2DACE3D500CF77C1 /* HomeScreenViewController.swift */; };
 		6F7B40EE2DACE3D500CF77C1 /* HomeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B40E42DACE3D500CF77C1 /* HomeFactory.swift */; };
-		6F7B40EF2DACE3D500CF77C1 /* ContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B40DE2DACE3D500CF77C1 /* ContactViewModel.swift */; };
 		6F7B40F02DACE3D500CF77C1 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B40D92DACE3D500CF77C1 /* Route.swift */; };
 		6F7B40F32DACE51B00CF77C1 /* MapEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B40F22DACE51B00CF77C1 /* MapEventListener.swift */; };
 		C1474C6E305A0E44AD6C4BDA /* Pods_Neshan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */; };
@@ -191,7 +190,6 @@
 		6F7B40D82DACE3D500CF77C1 /* ReverseGeocodeToAddressResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverseGeocodeToAddressResponse.swift; sourceTree = "<group>"; };
 		6F7B40D92DACE3D500CF77C1 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
 		6F7B40DC2DACE3D500CF77C1 /* HomeScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewController.swift; sourceTree = "<group>"; };
-		6F7B40DE2DACE3D500CF77C1 /* ContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactViewModel.swift; sourceTree = "<group>"; };
 		6F7B40DF2DACE3D500CF77C1 /* HomeScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewModel.swift; sourceTree = "<group>"; };
 		6F7B40E02DACE3D500CF77C1 /* RouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
 		6F7B40E22DACE3D500CF77C1 /* HomeCoordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCoordinate.swift; sourceTree = "<group>"; };
@@ -570,7 +568,6 @@
 		6F7B40E12DACE3D500CF77C1 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				6F7B40DE2DACE3D500CF77C1 /* ContactViewModel.swift */,
 				6F7B40DF2DACE3D500CF77C1 /* HomeScreenViewModel.swift */,
 				6F7B40E02DACE3D500CF77C1 /* RouteViewModel.swift */,
 			);
@@ -801,7 +798,6 @@
 				6F7B40EC2DACE3D500CF77C1 /* DirectionResponse.swift in Sources */,
 				6F7B40ED2DACE3D500CF77C1 /* HomeScreenViewController.swift in Sources */,
 				6F7B40EE2DACE3D500CF77C1 /* HomeFactory.swift in Sources */,
-				6F7B40EF2DACE3D500CF77C1 /* ContactViewModel.swift in Sources */,
 				6F7B40F02DACE3D500CF77C1 /* Route.swift in Sources */,
 				551BD89C2DA3B3F30072A857 /* SearchResponseDto.swift in Sources */,
 				551BD81F2DA131950072A857 /* BaseCoordinator.swift in Sources */,
@@ -939,6 +935,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K2J8PYZW38;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Neshan/Supporting Files/Info.plist";
@@ -978,6 +975,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K2J8PYZW38;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Neshan/Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";

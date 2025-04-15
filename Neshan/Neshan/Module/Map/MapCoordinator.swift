@@ -12,13 +12,18 @@ import RxCocoa
 class MapCoordinator: BaseCoordinator<Void> {
     
     private let navigationController: UINavigationController
-        
-    init(navigationController: UINavigationController) {
+    let apiClient: ApiClient
+
+    
+    init(navigationController: UINavigationController, apiClient: ApiClient) {
         self.navigationController = navigationController
+        self.apiClient = apiClient
     }
     
     override func start() -> Observable<Void> {
-        let vm = MapViewModel()
+        let vm = MapViewModel(locationService: DefaultLocationService(),
+                              geoService: DefaultGeoLocationService(apiService: apiClient))
+    
         let vc = MapScreen(viewModel: vm)
         
         vm.showSearch.flatMap { item in

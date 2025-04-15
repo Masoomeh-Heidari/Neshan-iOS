@@ -10,10 +10,22 @@ import Foundation
 import RxSwift
 import UIKit
 
+struct AppConfig {
+    static let baseURL = URL(string: "https://api.neshan.org/v5/")!
+    static let apiKey = "service.39681e0622cc4184a1141787b0508dbb"
+}
+
 class TabbarCoordinator: BaseCoordinator<Void> {
     
     private let viewControllers: [UINavigationController]
     private let selectedIndex: Int
+    
+    lazy var apiClient: ApiClient = {
+        let client = DefaultAPIClient.init(baseURL: AppConfig.baseURL,
+                                           configuration: .default,
+                                           apiKey: AppConfig.apiKey)
+        return client
+    }()
     
     init(using selectedIndex: Int = 4) {
         self.selectedIndex = selectedIndex
@@ -46,7 +58,7 @@ class TabbarCoordinator: BaseCoordinator<Void> {
                 case .pin:
                     return coordinate(to: DemoCoordinator(navigationController: element))
                 case .map:
-                    return coordinate(to: MapCoordinator(navigationController: element))
+                    return coordinate(to: MapCoordinator(navigationController: element, apiClient: apiClient))
                 }
             }
                                     

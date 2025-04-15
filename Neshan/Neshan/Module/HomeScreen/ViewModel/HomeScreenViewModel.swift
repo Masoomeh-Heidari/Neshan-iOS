@@ -10,7 +10,7 @@ import CoreLocation
 let UserLocationID = "userCurrentLocation"
 
 
-class HomeScreenViewModel { 
+class HomeScreenViewModel { 
     
     let locationService: LocationService
     let geolocationService: GeoLocationService
@@ -20,7 +20,6 @@ class HomeScreenViewModel { 
     
     var locationMarkers: [LocationMarkerViewModel] = []
     var routes: [RouteViewModel] = []
-    var contacts: [ContactViewModel] = []
     
     var onLocationMarkersUpdated: (([LocationMarkerViewModel]) -> Void)? = nil
     var onContactsUpdate: ((_ updated: Bool, _ error: Error?) -> Void)?
@@ -42,25 +41,6 @@ class HomeScreenViewModel { 
         self.storageService = tripStorageService
     }
     
-    func getContacts() {
-        contactsProvider.requestAccess { [weak self] granted in
-            guard granted else {
-                return
-            }
-            self?.contactsProvider.fetchContacts { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let contacts):
-                        self?.contacts = contacts.map(ContactViewModel.init)
-                        self?.onContactsUpdate?(true, nil)
-                    case .failure(let error):
-                        self?.onContactsUpdate?(false, error)
-                    }
-                    
-                }
-            }
-        }
-    }
     
     func getMyCurrentLocation(completion: @escaping (Result<CLLocationCoordinate2D, Error>) -> Void) {
         guard locationService.checkAuthorizationStatus() != .denied else {
@@ -146,43 +126,6 @@ class HomeScreenViewModel { 
         } catch {
             print("Error: \(error)")
         }
-    }
-    
-    func onSaveTripTap(title: String, address: String? = nil) -> Bool {
-        guard let coordinate = lastLocationSelected else {
-            return false
-        }
-        let model = TripModel(id: Int(Date.timeIntervalSinceReferenceDate),
-                              title: title,
-                              address: address,
-                              contacts: [],
-                              lat: coordinate.latitude,
-                              lng: coordinate.longitude)
-        storageService.save(model)
-        return true
-    }
-   
-    //MARK: - Contacts methods
-    func didSelectContact(at index: Int) {
-        guard index >= 0 && index < contacts.count else { return }
-        
-        let contact = contacts[index]
-        contact.isSelected = true
-        selectedContactNames.append(contact.contact.givenName)
-    }
-    
-    func deselectContact(at index: Int) {
-        guard index >= 0 && index < contacts.count else { return }
-        
-        let contact = contacts[index]
-        contact.isSelected = false
-        if let nameIndex = selectedContactNames.firstIndex(of: contact.contact.givenName) {
-            selectedContactNames.remove(at: nameIndex) // Remove deselected contact name
-        }
-    }
-    
-    func getSelectedContactNames() -> [String] {
-        return selectedContactNames
     }
 }
 

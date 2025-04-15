@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 struct SearchResponseDto: Decodable {
     let count: Int
@@ -26,6 +27,10 @@ struct SearchItemDto: Decodable {
 struct LocationDto: Decodable {
     let x: Double
     let y: Double
+    
+    var toCLLocationCoordinate2D: CLLocationCoordinate2D {
+            return CLLocationCoordinate2D(latitude: y, longitude: x)
+        }
 }
 
 extension SearchItemDto: Equatable {

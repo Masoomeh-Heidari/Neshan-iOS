@@ -43,10 +43,6 @@ class HomeScreenViewController: BaseViewController<HomeScreenViewModel> {
         setupBottomView()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        viewModel?.getContacts()
-    }
     //MARK: - ViewSetup
     func setupMapView() {
         mapView = NTMapView(frame: .zero)
