@@ -28,12 +28,14 @@ class SearchViewModel: BaseViewModel {
     }
     
     fileprivate func binding() {
-        searchTerm.subscribe(onNext: { term in
+        searchTerm.subscribe(onNext: { [weak self] term in
+            guard let self = self else { return }
             guard !(term.isEmpty) else {
                 self.searchResult.onNext(nil)
                 return
             }
-            self.service.search(by: term, lat: self.lng, lng: self.lat) { result in
+            self.service.search(by: term, lat: self.lng, lng: self.lat) {[weak self] result in
+                guard let self = self else { return }
                 switch result {
                 case .success(let list):
                     self.searchResult.onNext(list)

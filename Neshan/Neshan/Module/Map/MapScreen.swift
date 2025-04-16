@@ -30,11 +30,40 @@ class MapScreen: UIViewController {
     let userLocationLayer = NTNeshanServices.createVectorElementLayer()
     
     var searchTerm: String = ""
-    var searchedItemLocation: CLLocationCoordinate2D? = nil
     
-    let currenLocalButton = UIButton()
-    let searchViewContainer = UIView()
-    
+    lazy var currenLocalButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "current_target"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
+        return button
+    }()
+
+    lazy var searchViewContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSearch)))
+        return view
+    }()
+
+    lazy var searchTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "جستجو در نشان"
+        textField.textColor = .black
+        textField.font = UIFont.systemFont(ofSize: 14)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.borderStyle = .none
+        textField.backgroundColor = UIColor(white: 6.0, alpha: 8.0)
+        textField.semanticContentAttribute = .forceRightToLeft
+        textField.layer.cornerRadius = 8
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.textAlignment = .right
+        textField.isEnabled = false
+        return textField
+    }()
     
     var markerLayer: NTVectorElementLayer?
     var routeLayers: NTVectorElementLayer?
@@ -79,10 +108,9 @@ class MapScreen: UIViewController {
     fileprivate func binding() {
         self.viewModel?.showSearchBox.subscribe(on: MainScheduler.instance).subscribe(onNext: {[weak self] items in
             guard let self else { return }
-            
-            self.currenLocalButton.isHidden = false
-            self.searchViewContainer.isHidden = false
+           
             self.searchLayer?.clear()
+            self.markerLayer?.clear()
             self.searchTerm = items.term
             
             let resultMarkers = self.getMarkers(by: items.result)
@@ -92,7 +120,6 @@ class MapScreen: UIViewController {
             
             let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first!
             searchLayer?.add(selectedItemMarker)
-            self.searchedItemLocation = items.selectedItem.location.toCLLocationCoordinate2D
             
             self.fetchAddressAndUpdateInfoBox(for: items.selectedItem.location.toCLLocationCoordinate2D)
             self.showBottomView()
@@ -164,54 +191,52 @@ class MapScreen: UIViewController {
     
     //MARK: - ViewSetup
     func setupBottomView() {
+        configureSearchView()
+        setUpCurrentLocationButton()
+    }
+    
+    
+    private func configureSearchView() {
         searchViewContainer.backgroundColor = .white
         searchViewContainer.translatesAutoresizingMaskIntoConstraints = false
         searchViewContainer.isUserInteractionEnabled = true
         searchViewContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSearch)))
-        self.mapView?.addSubview(searchViewContainer)
+        mapView?.addSubview(searchViewContainer)
         NSLayoutConstraint.activate([
-            searchViewContainer.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor, constant: 0),
-            searchViewContainer.leadingAnchor.constraint(equalTo: mapView!.leadingAnchor, constant: 0),
+            searchViewContainer.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor),
+            searchViewContainer.leadingAnchor.constraint(equalTo: mapView!.leadingAnchor),
             searchViewContainer.bottomAnchor.constraint(equalTo: mapView!.bottomAnchor, constant: -8),
             searchViewContainer.heightAnchor.constraint(equalToConstant: 60)
         ])
+        addSearchTextField()
+    }
+
+    private func addSearchTextField() {
+      
+        searchViewContainer.addSubview(searchTextField)
+        searchTextField.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            searchTextField.trailingAnchor.constraint(equalTo: searchViewContainer.trailingAnchor, constant: -8),
+            searchTextField.leadingAnchor.constraint(equalTo: searchViewContainer.leadingAnchor, constant: 8),
+            searchTextField.bottomAnchor.constraint(equalTo: searchViewContainer.bottomAnchor, constant: -8),
+            searchTextField.topAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: 8)
+        ])
+    }
+
+    private func setUpCurrentLocationButton() {
         
-        currenLocalButton.setImage(UIImage(named: "current_target"), for: .normal)
         currenLocalButton.translatesAutoresizingMaskIntoConstraints = false
         mapView?.addSubview(currenLocalButton)
         currenLocalButton.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
         NSLayoutConstraint.activate([
-            currenLocalButton.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor,constant: -16),
+            currenLocalButton.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor, constant: -16),
             currenLocalButton.bottomAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: -16),
             currenLocalButton.widthAnchor.constraint(equalToConstant: 30),
             currenLocalButton.heightAnchor.constraint(equalToConstant: 30)
         ])
-        
-        let textField = UITextField()
-        textField.borderStyle = .none
-        textField.backgroundColor = UIColor(white: 6.0, alpha: 8.0)
-        textField.semanticContentAttribute = .forceRightToLeft
-        textField.layer.cornerRadius = 8
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor.lightGray.cgColor
-        textField.textAlignment = .right
-        textField.placeholder = "جستجو"
-        textField.isEnabled = false
-        
-        self.searchViewContainer.addSubview(textField)
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            textField.trailingAnchor.constraint(equalTo: searchViewContainer.trailingAnchor,constant: -8),
-            textField.leadingAnchor.constraint(equalTo: searchViewContainer.leadingAnchor,constant: 8),
-            textField.bottomAnchor.constraint(equalTo: searchViewContainer.bottomAnchor, constant: -8),
-            textField.topAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: 8)
-            
-        ])
     }
     
     @objc func goToSearch() {
-        self.currenLocalButton.isHidden = true
-        self.searchViewContainer.isHidden = true
         let userLocation = self.locationManager.location
         self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
         self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
@@ -253,17 +278,7 @@ class MapScreen: UIViewController {
     
     func bindViewModel() {
         guard let viewModel = viewModel else { return }
-        //        viewModel.getMyCurrentLocation {[weak self] result in
-        //            switch result {
-        //            case .success(let location):
-        //                print("current location: \(location)")
-        //                self?.updateMapWithLocation(location)
-        //            case .failure(let error):
-        ////                self?.handleError(error)
-        //                print("error,\(error)")
-        //            }
-        //        }
-        //
+        getCurrentLocation()
         viewModel.onLocationMarkersUpdated = {[weak self] infos in
             self?.markerLayer?.clear()
             for info in infos {
@@ -277,23 +292,6 @@ class MapScreen: UIViewController {
         mapEventListener.onMapTap = {[weak viewModel] location in
             viewModel?.onMapTap(at: location)
             self.fetchAddressAndUpdateInfoBox(for: location)
-            viewModel?.getDirectionToDestination(at: location, completion: { [weak self] result in
-                switch result {
-                case .success(let success):
-                    self?.routeLayers?.clear()
-                    self?.routes = success
-                    for route in success {
-                        DispatchQueue.main.async {
-                            let duration = route.route.legs?.first?.duration.text
-                            self?.duration = duration ?? ""
-                            let distance = route.route.legs?.first?.distance.text
-                            self?.infoBox.setDuration(duration: duration, distance: distance)
-                        }
-                    }
-                case.failure(let error):
-                    print("error \(error)")
-                }
-            })
             self.showBottomView()
         }
     }
@@ -312,8 +310,26 @@ class MapScreen: UIViewController {
                 }
             }
         }
+        
+        self.viewModel?.getDirectionToDestination(at: location, completion: { [weak self] result in
+            switch result {
+            case .success(let success):
+                self?.routeLayers?.clear()
+                self?.routes = success
+                for route in success {
+                    DispatchQueue.main.async {
+                        let duration = route.route.legs?.first?.duration.text
+                        self?.duration = duration ?? ""
+                        let distance = route.route.legs?.first?.distance.text
+                        self?.infoBox.setDuration(duration: duration, distance: distance)
+                    }
+                }
+            case.failure(let error):
+                print("error \(error)")
+            }
+        })
     }
-    
+
     func updateMapWithLocation(_ coordinate: CLLocationCoordinate2D) {
         let lngLat = NTLngLat(x: coordinate.longitude, y: coordinate.latitude)
         mapView?.setFocalPointPosition(lngLat, durationSeconds: 0.4)
@@ -398,14 +414,17 @@ class MapScreen: UIViewController {
     func addRouteLabel(at coordinate: CLLocationCoordinate2D, duration: String) {
         let labelStyleCreator = NTLabelStyleCreator()
         labelStyleCreator?.setFontSize(15)
-        labelStyleCreator?.setBackgroundColor(NTARGB(r: 255, g: 0, b: 0, a: 255))
+        labelStyleCreator?.setBackgroundColor(NTARGB(r: 167, g: 172, b: 184, a: 255))
+        labelStyleCreator?.setBorderColor(NTARGB(r: 0, g: 0, b: 0, a: 255))
+        labelStyleCreator?.setBorderWidth(5)
+        labelStyleCreator?.setTextMargins(.init(left: 3, top: 3, right: 3, bottom: 3))
         
         let labelStyle = labelStyleCreator?.buildStyle()
         
         let label = NTLabel(
             pos: NTLngLat(x: coordinate.longitude, y: coordinate.latitude),
             style: labelStyle,
-            text: "Duration: \(duration)"
+            text: duration
         )
         
         labelLayer?.add(label)
@@ -453,6 +472,10 @@ class MapScreen: UIViewController {
         //        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
         //        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
         //        self.setUserCurrentLocation(using: (x: self.lat, y: self.lng))
+        getCurrentLocation()
+    }
+    
+    func getCurrentLocation() {
         self.markerLayer?.clear()
         self.viewModel?.getMyCurrentLocation {[weak self] result in
             switch result {
@@ -492,6 +515,7 @@ class MapScreen: UIViewController {
     
     func hideBottomView() {
         routeLayers?.clear()
+        searchLayer?.clear()
         UIView.animate(withDuration: 0.1, animations: {
             self.infoBox.alpha = 0.0
         }) { _ in

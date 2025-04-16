@@ -30,8 +30,14 @@ class SearchScreen: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+//    deinit {
+//        self.viewModel.cancel.onNext(())
+//    }
+    
+    
     override func viewDidDisappear(_ animated: Bool) {
         self.textField.endEditing(true)
+        self.viewModel.cancel.onNext(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
