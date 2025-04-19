@@ -27,8 +27,7 @@ class MapCoordinator: BaseCoordinator<Void> {
                     return Just(nil).eraseToAnyPublisher()
                 }
                 return self.goToSearchScreen(using: location, rootViewController: vc)
-            }
-            .compactMap { $0 } // Remove nils
+            }.compactMap { $0 } // Remove nils
             .sink { result in
                 vm.showSearchBox.send(result)
             }
