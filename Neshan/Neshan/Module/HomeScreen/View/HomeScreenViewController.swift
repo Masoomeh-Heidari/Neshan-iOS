@@ -171,40 +171,40 @@ class HomeScreenViewController: BaseViewController<HomeScreenViewModel> {
         }
         
         // input and output binding
-        mapEventListener.onMapTap = {[weak viewModel] location in
-            viewModel?.onMapTap(at: location)
-            viewModel?.getAddress(at: location) { [weak self] result in
-                self?.location = location
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let address):
-                        self?.bottomView.setDestinationName(address.routeName)
-                        self?.bottomView.setDestinationFullAddress(address.formattedAddress)
-                        self?.showBottomView()
-                    case .failure(let error):
-                        print("Error: \(error)")
-                    }
-                }
-            }
+//        mapEventListener.onMapTap = {[weak viewModel] location in
+//            viewModel?.onMapTap(at: location)
+//            viewModel?.getAddress(at: location) { [weak self] result in
+//                self?.location = location
+//                DispatchQueue.main.async {
+//                    switch result {
+//                    case .success(let address):
+//                        self?.bottomView.setDestinationName(address.routeName)
+//                        self?.bottomView.setDestinationFullAddress(address.formattedAddress)
+//                        self?.showBottomView()
+//                    case .failure(let error):
+//                        print("Error: \(error)")
+//                    }
+//                }
+//            }
             
-            viewModel?.getDirectionToDestination(at: location, completion: { [weak self] result in
-                switch result {
-                case .success(let success):
-                    self?.routeLayers?.clear()
-                    self?.routes = success
-                    for route in success {
-                        DispatchQueue.main.async {
-                            let duration = route.route.legs?.first?.duration.text
-                            self?.duration = duration ?? ""
-                            let distance = route.route.legs?.first?.distance.text
-                            self?.bottomView.setDuration(duration: duration, distance: distance)
-                        }
-                    }
-                case.failure(let error):
-                    print("error \(error)")
-                }
-            })
-        }
+//            viewModel?.getDirectionToDestination(at: location, completion: { [weak self] result in
+//                switch result {
+//                case .success(let success):
+//                    self?.routeLayers?.clear()
+//                    self?.routes = success
+//                    for route in success {
+//                        DispatchQueue.main.async {
+//                            let duration = route.route.legs?.first?.duration.text
+//                            self?.duration = duration ?? ""
+//                            let distance = route.route.legs?.first?.distance.text
+//                            self?.bottomView.setDuration(duration: duration, distance: distance)
+//                        }
+//                    }
+//                case.failure(let error):
+//                    print("error \(error)")
+//                }
+//            })
+//        }
         
     }
     

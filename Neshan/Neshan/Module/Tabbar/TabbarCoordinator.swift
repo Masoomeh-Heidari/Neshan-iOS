@@ -1,13 +1,5 @@
-//
-//  TabbarCoordinator.swift
-//  WePod
-//
-//  Created by Fariba on 6/12/1401 AP.
-//  Copyright © 1401 AP Dotin. All rights reserved.
-//
-
 import Foundation
-import RxSwift
+import Combine
 import UIKit
 
 struct AppConfig {
@@ -26,6 +18,10 @@ class TabbarCoordinator: BaseCoordinator<Void> {
                                            apiKey: AppConfig.apiKey)
         return client
     }()
+
+    deinit {
+        cancellables.removeAll()
+    }
     
     init(using selectedIndex: Int = 4) {
         self.selectedIndex = selectedIndex
@@ -39,15 +35,32 @@ class TabbarCoordinator: BaseCoordinator<Void> {
             })
     }
     
-    override func start() -> Observable<Void> {
+    override func start() -> AnyPublisher<Void, Never> {
         let viewModel = TabbarViewModel()
         let viewController = TabbarViewController(viewModel: viewModel)
         viewController.tabBar.isTranslucent = false
         viewController.viewControllers = viewControllers
         viewController.selectedIndex = self.selectedIndex
-        let coordinates = viewControllers.enumerated()
-            .map { (offset, element) -> Observable<Void> in
-                guard let items = TabbarItem(rawValue: offset) else { return Observable.just(() )}
+//        let coordinates = viewControllers.enumerated()
+//            .map { (offset, element) -> Observable<Void> in
+//                guard let items = TabbarItem(rawValue: offset) else { return Observable.just(() )}
+//                switch items {
+//                case .other:
+//                    return coordinate(to: DemoCoordinator(navigationController: element))
+//                case .business:
+//                    return coordinate(to: DemoCoordinator(navigationController: element))
+//                case .experience:
+//                    return coordinate(to: DemoCoordinator(navigationController: element))
+//                case .pin:
+//                    return coordinate(to: DemoCoordinator(navigationController: element))
+//                case .map:
+//                    return coordinate(to: MapCoordinator(navigationController: element))
+//                }
+//            }
+        
+        let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated()
+            .map { (offset, element) -> AnyPublisher<Void, Never> in
+                guard let items = TabbarItem(rawValue: offset) else { return Just(()).eraseToAnyPublisher() }
                 switch items {
                 case .other:
                     return coordinate(to: DemoCoordinator(navigationController: element))
@@ -61,13 +74,14 @@ class TabbarCoordinator: BaseCoordinator<Void> {
                     return coordinate(to: MapCoordinator(navigationController: element, apiClient: apiClient))
                 }
             }
-                                    
-        Observable.merge(coordinates)
-            .subscribe()
-            .disposed(by: disposeBag)
+        // Merge all the coordinate publishers and subscribe
+        Publishers.MergeMany(coordinates)
+            .sink { _ in }
+            .store(in: &cancellables)
         
         viewController.setRootViewController()
-        return Observable.never()
+        
+        return Just(()).eraseToAnyPublisher()
     }
 }
 
@@ -78,7 +92,6 @@ enum TabbarItem: Int {
     case pin
     case map
 
-    
     var icon: UIImage? {
         switch self {
         case .other:
@@ -93,20 +106,9 @@ enum TabbarItem: Int {
             return UIImage(systemName: "map")
         }
     }
-    
+
     var selectedImage: UIImage? {
-        switch self {
-        case .other:
-            return UIImage(systemName: "line.3.horizontal")
-        case .business:
-            return UIImage(systemName: "house")
-        case .experience:
-            return UIImage(systemName: "bubble.right")
-        case .pin:
-            return UIImage(systemName: "bookmark")
-        case .map:
-            return UIImage(systemName: "map")
-        }
+        return icon
     }
     
     var title: String {
@@ -123,7 +125,7 @@ enum TabbarItem: Int {
             return "نقشه"
         }
     }
-    
+
     func pageOrderNumber() -> Int {
         switch self {
         case .other:
@@ -135,11 +137,10 @@ enum TabbarItem: Int {
         case .pin:
             return 3
         case .map:
-             return 4
+            return 4
         }
     }
 }
-
 
 extension RawRepresentable where RawValue == Int {
     
@@ -148,7 +149,6 @@ extension RawRepresentable where RawValue == Int {
         while Self(rawValue: index) != nil {
             index += 1
         }
-        
         return index
     }
     
@@ -159,7 +159,6 @@ extension RawRepresentable where RawValue == Int {
             items.append(item)
             index += 1
         }
-        
         return items
     }
 }

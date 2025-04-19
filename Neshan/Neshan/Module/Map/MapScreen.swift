@@ -12,7 +12,7 @@ import CoreLocation
 import Combine
 
 class MapScreen: UIViewController {
-    let viewModel: MapViewModel?
+    let viewModel: MapViewModel
     private var cancellables = Set<AnyCancellable>()
 
     var mapView:NTMapView!
@@ -50,7 +50,6 @@ class MapScreen: UIViewController {
 
     lazy var searchTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "جستجو در نشان"
         textField.textColor = .black
         textField.font = UIFont.systemFont(ofSize: 14)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -62,6 +61,10 @@ class MapScreen: UIViewController {
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.textAlignment = .right
         textField.isEnabled = false
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "جستجو در نشان",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray]
+        )
         return textField
     }()
     
@@ -84,12 +87,9 @@ class MapScreen: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        self.viewModel?.hideExplore.send()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    deinit {
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
     }
     
     override func viewDidLoad() {
@@ -106,7 +106,7 @@ class MapScreen: UIViewController {
     
     
     fileprivate func binding() {
-        self.viewModel?.showSearchBox
+        self.viewModel.showSearchBox
             .sink(receiveValue: { [weak self] items in
                 
             guard let self else { return }
@@ -129,8 +129,7 @@ class MapScreen: UIViewController {
             
             mapView?.setFocalPointPosition(NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y), durationSeconds: 0.4)
             mapView?.setZoom(16, durationSeconds: 0.4)
-        })
-            .store(in: &cancellables)
+        }).store(in: &cancellables)
     }
     
     fileprivate func initUserLocation() {
@@ -235,7 +234,7 @@ class MapScreen: UIViewController {
         let userLocation = self.locationManager.location
         self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
         self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        self.viewModel?.showSearch.send((x: self.lat, y: self.lng))
+        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
     }
     
     func setupInfoBox() {
@@ -272,7 +271,6 @@ class MapScreen: UIViewController {
     }
     
     func bindViewModel() {
-        guard let viewModel = viewModel else { return }
             getCurrentLocation()
             
             viewModel.locationMarkersUpdated
@@ -294,7 +292,7 @@ class MapScreen: UIViewController {
     }
     
     func fetchAddressAndUpdateInfoBox(for location: CLLocationCoordinate2D) {
-        self.viewModel?.getAddress(at: location)
+        self.viewModel.getAddress(at: location)
             .sink { [weak self] completion in
                 switch completion {
                 case .finished:
@@ -313,7 +311,7 @@ class MapScreen: UIViewController {
     
     
         
-        self.viewModel?.getDirectionToDestination(at: location)
+        self.viewModel.getDirectionToDestination(at: location)
             .sink { [weak self] result in
                 switch result {
                 case .finished:
@@ -343,7 +341,7 @@ class MapScreen: UIViewController {
         addMarkerToMap(location: coordinate,
                        icon: UIImage(resource: .currentLocation),
                        id: "userCurrentLocation")
-        self.viewModel?.currentUserLocation = coordinate
+        self.viewModel.currentUserLocation = coordinate
     }
     
     func addMarkerToMap(location: CLLocationCoordinate2D, icon: UIImage, id: String) {
@@ -479,7 +477,7 @@ class MapScreen: UIViewController {
     
     func getCurrentLocation() {
         self.markerLayer?.clear()
-        self.viewModel?.getMyCurrentLocation()
+        self.viewModel.getMyCurrentLocation()
             .sink { [weak self] result in
                 switch result {
                 case .finished:
@@ -540,7 +538,7 @@ extension MapScreen: CLLocationManagerDelegate {
         self.lat = userLocation.coordinate.longitude
         self.lng = userLocation.coordinate.latitude
         
-        self.viewModel?.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
+        self.viewModel.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
     }
     
     fileprivate func checkLocationAuthorization(using manager: CLLocationManager) {

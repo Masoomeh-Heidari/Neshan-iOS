@@ -202,7 +202,6 @@ class MapViewModel: BaseViewModel {
     var routesFetched          = PassthroughSubject<[CLLocationCoordinate2D], Never>()
     
     var userLocation           = PassthroughSubject<(x: Double, y: Double), Never>()
-    var hideExplore            = PassthroughSubject<Void, Never>()
     var showSearch             = PassthroughSubject<(x: Double, y: Double), Never>()
     var showSearchResult       = PassthroughSubject<Bool, Never>()
     var showSearchBox          = PassthroughSubject<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto]), Never>()

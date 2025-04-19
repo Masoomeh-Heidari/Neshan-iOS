@@ -6,8 +6,7 @@
 //
 
 import Foundation
-import RxSwift
-import RxCocoa
+import Combine
 import FittedSheets
 
 class SearchCoordinator: BaseCoordinator<DoneCoordinatorResult> {
@@ -20,7 +19,7 @@ class SearchCoordinator: BaseCoordinator<DoneCoordinatorResult> {
         self.rootViewController = rootViewController
     }
     
-    override func start() -> Observable<DoneCoordinatorResult> {
+    override func start() -> AnyPublisher<DoneCoordinatorResult, Never> {
         let vc = SearchScreen(viewModel: self.viewModel)
         
         let sheetController = SheetViewController(controller: vc, sizes: [.fullscreen])
@@ -30,11 +29,12 @@ class SearchCoordinator: BaseCoordinator<DoneCoordinatorResult> {
         
         let confirm = viewModel.selectedItem.map { CoordinationResult.done($0) }
         let cancel = viewModel.cancel.map { CoordinationResult.cancel }
-                
-        return Observable.merge(confirm, cancel)
-            .take(1)
-            .do(onNext: { _ in
+        
+        return Publishers.Merge(confirm, cancel).dropFirst(1)
+            .handleEvents(receiveOutput: { _ in
                 sheetController.dismiss()
             })
+            .eraseToAnyPublisher()
     }
 }
+

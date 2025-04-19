@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import RxSwift
+import Combine
 
 class DemoCoordinator: BaseCoordinator<Void> {
     
@@ -16,10 +16,11 @@ class DemoCoordinator: BaseCoordinator<Void> {
         self.navigationController = navigationController
     }
     
-    override func start() -> Observable<Void> {
+    override func start() -> AnyPublisher<Void, Never> {
         let vc = DemoViewController()
         navigationController.setViewControllers([vc], animated: false)
         
-        return Observable.empty()
+        return Empty(completeImmediately: true)
+            .eraseToAnyPublisher()
     }
 }

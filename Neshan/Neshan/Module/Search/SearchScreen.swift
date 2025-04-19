@@ -1,13 +1,5 @@
-//
-//  SearchScreen.swift
-//  Neshan
-//
-//  Created by Fariba on 1/17/1404 AP.
-//
-
 import UIKit
-import RxSwift
-import RxCocoa
+import Combine
 
 class SearchScreen: UIViewController {
     let viewModel: SearchViewModel
@@ -16,7 +8,7 @@ class SearchScreen: UIViewController {
     @IBOutlet weak var textField: UITextField!
     @IBOutlet weak var tableView: UITableView!
     
-    private let disposeBag = DisposeBag()
+    private var cancellables = Set<AnyCancellable>()  // Replace DisposeBag with Set<AnyCancellable>
 
     var items = [SearchItemDto]()
     var searchTerm: String = ""
@@ -37,15 +29,14 @@ class SearchScreen: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         self.textField.endEditing(true)
-        self.viewModel.cancel.onNext(())
+        self.viewModel.cancel.send(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        
         self.textField.becomeFirstResponder()
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
@@ -60,26 +51,32 @@ class SearchScreen: UIViewController {
     }
     
     fileprivate func binding() {
-        textField.rx.text
-            .throttle(.microseconds(1000), scheduler: MainScheduler.instance)
-            .debounce(.milliseconds(1000), scheduler: MainScheduler.instance)
-            .compactMap { $0 }
-            .subscribe(onNext: { [weak self]  txt in
+        // Replacing RxSwift's textField.rx.text with Combine's textField.publisher
+        NotificationCenter.default
+                    .publisher(for: UITextField.textDidChangeNotification, object: textField)
+                    .map( {
+                        ($0.object as? UITextField)?.text ?? ""
+                    })
+            .debounce(for: .milliseconds(1000), scheduler: DispatchQueue.main) // Debounce
+            .sink { [weak self] txt in
                 guard let self = self else { return }
                 self.searchTerm = txt
-                self.viewModel.searchTerm.onNext(txt)
-            }).disposed(by: self.disposeBag)
+                self.viewModel.searchTerm.send(txt)  // Send value using Combine's PassthroughSubject
+            }
+            .store(in: &cancellables)
         
-        self.viewModel.searchResult.subscribe(onNext: { [weak self] list in
-            guard let self else { return }
-            self.items.removeAll()
-            self.tableView.reloadData()
-            self.items.append(contentsOf: list ?? [])
-            self.tableView.reloadData()
-        }).disposed(by: self.disposeBag)
+        // Binding searchResult to update UI
+        viewModel.searchResult
+            .sink { [weak self] list in
+                guard let self = self else { return }
+                self.items.removeAll()
+                self.tableView.reloadData()
+                self.items.append(contentsOf: list ?? [])
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
     }
 }
-
 
 extension SearchScreen: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -89,7 +86,7 @@ extension SearchScreen: UITableViewDelegate {
         if let index = self.items.firstIndex(where: { $0 == self.items[indexPath.row]}) {
             item = items.remove(at: index)
         }
-        self.viewModel.selectedItem.onNext((term: self.searchTerm, selectedItem: item!, result: items))
+        self.viewModel.selectedItem.send((term: self.searchTerm, selectedItem: item!, result: items))  // Send value using PassthroughSubject
     }
 }
 

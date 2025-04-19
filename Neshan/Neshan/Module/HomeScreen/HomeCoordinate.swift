@@ -19,7 +19,7 @@ class HomeCoordinator: BaseCoordinator<Void> {
     }
     
     
-    override func start() -> Observable<Void> {
+     func start() -> Observable<Void> {
         let homeViewController = factory.makeHomeViewController()
         homeViewController.bind(to: factory.makeHomeViewModel())
         navigationController.pushViewController(homeViewController, animated: true)

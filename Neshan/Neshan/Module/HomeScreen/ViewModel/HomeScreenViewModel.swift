@@ -79,19 +79,19 @@ class HomeScreenViewModel {
             onLocationMarkersUpdated?(locationMarkers)
         }
     }
+//    
+//    func getAddress(at coordinate: CLLocationCoordinate2D, completion: @escaping (Result<ReverseGeocodeToAddressResponse, APIError>) -> Void) {
+//        do {
+//            try geolocationService.getReverseGeocoding(at: coordinate) { address in
+//                print("Address: \(String(describing: address))")
+//                completion(address)
+//            }
+//        } catch {
+//            print("Error: \(error)")
+//        }
+//    }
     
-    func getAddress(at coordinate: CLLocationCoordinate2D, completion: @escaping (Result<ReverseGeocodeToAddressResponse, APIError>) -> Void) {
-        do {
-            try geolocationService.getReverseGeocoding(at: coordinate) { address in
-                print("Address: \(String(describing: address))")
-                completion(address)
-            }
-        } catch {
-            print("Error: \(error)")
-        }
-    }
-    
-    func getDirectionToDestination(at destination: CLLocationCoordinate2D, completion: @escaping (Result<[RouteViewModel], APIError>) -> Void) {
+    /*func getDirectionToDestination(at destination: CLLocationCoordinate2D, completion: @escaping (Result<[RouteViewModel], APIError>) -> Void) {
         guard let currentUserLocation = currentUserLocation else {
             print("throw an appropriate error")
             return
@@ -126,7 +126,7 @@ class HomeScreenViewModel {
         } catch {
             print("Error: \(error)")
         }
-    }
+    }*/
 }
 
 extension HomeScreenViewModel {
