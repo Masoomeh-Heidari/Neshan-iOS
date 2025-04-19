@@ -9,11 +9,13 @@ import Foundation
 
 enum APIError: LocalizedError {
     case invalidURL
+    case invalidRequest
     case requestFailed(Error)
     case validationResponse(statusCode: Int, message: String?)
     case decodingError(Error)
     case encodingError(Error)
     case notConnectedToInternet
+    case unknown
     
     var errorDescription: String? {
         return localizedDescription
@@ -23,6 +25,8 @@ enum APIError: LocalizedError {
         switch self {
         case .invalidURL:
             "Invalid URL"
+        case .invalidRequest:
+            "Invalid Request"
         case .requestFailed(let error ):
             "Request Failed: \(error.localizedDescription)"
         case .validationResponse(statusCode: let statusCode, message: let message):
@@ -33,6 +37,8 @@ enum APIError: LocalizedError {
             "Encoding Error : \(error.localizedDescription) "
         case .notConnectedToInternet:
             "There is no Internet Connection"
+        case .unknown:
+            "Unknown Error"
         }
     }
 }

@@ -9,12 +9,12 @@ import UIKit
 import RxSwift
 import RxCocoa
 import CoreLocation
+import Combine
 
 class MapScreen: UIViewController {
     let viewModel: MapViewModel?
-    
-    private let disposeBag = DisposeBag()
-    
+    private var cancellables = Set<AnyCancellable>()
+
     var mapView:NTMapView!
     var locationManager:CLLocationManager!
     var infoBox: DestinationInfosView!
@@ -85,7 +85,7 @@ class MapScreen: UIViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        self.viewModel?.hideExplore.onNext(())
+        self.viewModel?.hideExplore.send()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -106,7 +106,9 @@ class MapScreen: UIViewController {
     
     
     fileprivate func binding() {
-        self.viewModel?.showSearchBox.subscribe(on: MainScheduler.instance).subscribe(onNext: {[weak self] items in
+        self.viewModel?.showSearchBox
+            .sink(receiveValue: { [weak self] items in
+                
             guard let self else { return }
            
             self.searchLayer?.clear()
@@ -127,15 +129,8 @@ class MapScreen: UIViewController {
             
             mapView?.setFocalPointPosition(NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y), durationSeconds: 0.4)
             mapView?.setZoom(16, durationSeconds: 0.4)
-        }).disposed(by: self.disposeBag)
-        
-        
-        
-        //        self.viewModel.userLocation.subscribe(onNext: {[weak self] loc in
-        //            guard let self else { return }
-        //            self.userLocationLayer?.clear()
-        //            self.setUserCurrentLocation(using: loc)
-        //        }).disposed(by: self.disposeBag)
+        })
+            .store(in: &cancellables)
     }
     
     fileprivate func initUserLocation() {
@@ -240,7 +235,7 @@ class MapScreen: UIViewController {
         let userLocation = self.locationManager.location
         self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
         self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        self.viewModel?.showSearch.onNext((x: self.lat, y: self.lng))
+        self.viewModel?.showSearch.send((x: self.lat, y: self.lng))
     }
     
     func setupInfoBox() {
@@ -278,45 +273,58 @@ class MapScreen: UIViewController {
     
     func bindViewModel() {
         guard let viewModel = viewModel else { return }
-        getCurrentLocation()
-        viewModel.onLocationMarkersUpdated = {[weak self] infos in
-            self?.markerLayer?.clear()
-            for info in infos {
-                self?.addMarkerToMap(location: info.coordinate,
-                                     icon: info.icon,
-                                     id: info.id)
+            getCurrentLocation()
+            
+            viewModel.locationMarkersUpdated
+                .sink { [weak self] infos in
+                    self?.markerLayer?.clear()
+                    for info in infos {
+                        self?.addMarkerToMap(location: info.coordinate,
+                                             icon: info.icon,
+                                             id: info.id)
+                    }
+                }
+                .store(in: &cancellables)
+            
+            mapEventListener.onMapTap = { [weak viewModel] location in
+                viewModel?.onMapTap(at: location)
+                self.fetchAddressAndUpdateInfoBox(for: location)
+                self.showBottomView()
             }
-        }
-        
-        
-        mapEventListener.onMapTap = {[weak viewModel] location in
-            viewModel?.onMapTap(at: location)
-            self.fetchAddressAndUpdateInfoBox(for: location)
-            self.showBottomView()
-        }
     }
     
     func fetchAddressAndUpdateInfoBox(for location: CLLocationCoordinate2D) {
-        self.viewModel?.getAddress(at: location) { [weak self] result in
-            guard let self = self else { return }
-            self.location = location
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let address):
-                    self.infoBox.setDestinationName(address.routeName)
-                    self.infoBox.setDestinationFullAddress(address.formattedAddress)
+        self.viewModel?.getAddress(at: location)
+            .sink { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
                 case .failure(let error):
                     print("Error fetching address: \(error)")
                 }
+            } receiveValue: { [weak self] address in
+                self?.location = location
+                DispatchQueue.main.async {
+                    self?.infoBox.setDestinationName(address.routeName)
+                    self?.infoBox.setDestinationFullAddress(address.formattedAddress)
+                }
             }
-        }
+            .store(in: &cancellables)
+    
+    
         
-        self.viewModel?.getDirectionToDestination(at: location, completion: { [weak self] result in
-            switch result {
-            case .success(let success):
+        self.viewModel?.getDirectionToDestination(at: location)
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("Error fetching address: \(error)")
+                }
+            } receiveValue: { [weak self] result in
                 self?.routeLayers?.clear()
-                self?.routes = success
-                for route in success {
+                self?.routes = result
+                for route in result {
                     DispatchQueue.main.async {
                         let duration = route.route.legs?.first?.duration.text
                         self?.duration = duration ?? ""
@@ -324,10 +332,8 @@ class MapScreen: UIViewController {
                         self?.infoBox.setDuration(duration: duration, distance: distance)
                     }
                 }
-            case.failure(let error):
-                print("error \(error)")
-            }
-        })
+            } .store(in: &cancellables)
+            
     }
 
     func updateMapWithLocation(_ coordinate: CLLocationCoordinate2D) {
@@ -468,24 +474,23 @@ class MapScreen: UIViewController {
     }
     
     @objc func goToCurrentLocation() {
-        //        let userLocation = self.locationManager.location
-        //        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
-        //        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        //        self.setUserCurrentLocation(using: (x: self.lat, y: self.lng))
         getCurrentLocation()
     }
     
     func getCurrentLocation() {
         self.markerLayer?.clear()
-        self.viewModel?.getMyCurrentLocation {[weak self] result in
-            switch result {
-            case .success(let location):
-                print("current location: \(location)")
+        self.viewModel?.getMyCurrentLocation()
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("Error fetching address: \(error)")
+                }
+                
+            } receiveValue: { [weak self] location in
                 self?.updateMapWithLocation(location)
-            case .failure(let error):
-                print(error)
-            }
-        }
+            } .store(in: &cancellables)
     }
     
     fileprivate func setUserCurrentLocation(using loc: (x: Double, y: Double)) {
@@ -535,7 +540,7 @@ extension MapScreen: CLLocationManagerDelegate {
         self.lat = userLocation.coordinate.longitude
         self.lng = userLocation.coordinate.latitude
         
-        self.viewModel?.userLocation.onNext((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
+        self.viewModel?.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
     }
     
     fileprivate func checkLocationAuthorization(using manager: CLLocationManager) {
