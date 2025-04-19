@@ -20,14 +20,11 @@ class MapCoordinator: BaseCoordinator<Void> {
     }
     
     override func start() -> AnyPublisher<Void, Never> {
-        let vm = MapViewModel(locationService: DefaultLocationService(),
-                              geoService: DefaultGeoLocationService(apiService: apiClient))
+        let vm = MapViewModel(geoService: DefaultGeoLocationService(apiService: apiClient))
     
         let vc = MapScreen(viewModel: vm)
         
-        // React to showSearch with Combine
-        vm.showSearch
-            .receive(on: DispatchQueue.main)
+        vm.showSearch.receive(on: RunLoop.main)
             .flatMap { [weak self] location -> AnyPublisher<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto])?, Never> in
                 guard let self = self else {
                     return Just(nil).eraseToAnyPublisher()

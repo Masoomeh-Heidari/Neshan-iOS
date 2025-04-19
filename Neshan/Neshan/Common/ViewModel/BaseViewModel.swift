@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import RxSwift
 import UIKit
 
 typealias SimpleCallBack = () -> Void
@@ -43,9 +42,7 @@ enum DropDownToastMode: Int {
 }
 
 class BaseViewModel {
-    
-    let disposeBag = DisposeBag()
-    
+        
     // MARK: - View State Handler
     public var state: ViewState = .loading {
         didSet {

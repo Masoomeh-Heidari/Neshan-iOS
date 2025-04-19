@@ -45,14 +45,8 @@
 		55F1015A2D985A3F00D0226F /* MapScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55F101592D985A3F00D0226F /* MapScreen.xib */; };
 		55F1015C2D985F2000D0226F /* neshan.license in Resources */ = {isa = PBXBuildFile; fileRef = 55F1015B2D985F2000D0226F /* neshan.license */; };
 		6F425F132DB3A30600FAF421 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F0D2DB3A30600FAF421 /* RouteViewModel.swift */; };
-		6F425F142DB3A30600FAF421 /* HomeScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F0C2DB3A30600FAF421 /* HomeScreenViewModel.swift */; };
-		6F425F152DB3A30600FAF421 /* HomeCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F0F2DB3A30600FAF421 /* HomeCoordinate.swift */; };
-		6F425F162DB3A30600FAF421 /* ContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F0B2DB3A30600FAF421 /* ContactViewModel.swift */; };
 		6F425F172DB3A30600FAF421 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F072DB3A30600FAF421 /* Route.swift */; };
-		6F425F182DB3A30600FAF421 /* HomeDIPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F102DB3A30600FAF421 /* HomeDIPool.swift */; };
-		6F425F192DB3A30600FAF421 /* HomeFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F112DB3A30600FAF421 /* HomeFactory.swift */; };
 		6F425F1A2DB3A30600FAF421 /* DirectionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F052DB3A30600FAF421 /* DirectionResponse.swift */; };
-		6F425F1B2DB3A30600FAF421 /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F092DB3A30600FAF421 /* HomeScreenViewController.swift */; };
 		6F425F1C2DB3A30600FAF421 /* ReverseGeocodeToAddressResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F062DB3A30600FAF421 /* ReverseGeocodeToAddressResponse.swift */; };
 		6F425F2C2DB3A34C00FAF421 /* ApiParamEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F1F2DB3A34C00FAF421 /* ApiParamEncoder.swift */; };
 		6F425F2D2DB3A34C00FAF421 /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F1D2DB3A34C00FAF421 /* ApiClient.swift */; };
@@ -142,13 +136,7 @@
 		6F425F052DB3A30600FAF421 /* DirectionResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionResponse.swift; sourceTree = "<group>"; };
 		6F425F062DB3A30600FAF421 /* ReverseGeocodeToAddressResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverseGeocodeToAddressResponse.swift; sourceTree = "<group>"; };
 		6F425F072DB3A30600FAF421 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
-		6F425F092DB3A30600FAF421 /* HomeScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewController.swift; sourceTree = "<group>"; };
-		6F425F0B2DB3A30600FAF421 /* ContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactViewModel.swift; sourceTree = "<group>"; };
-		6F425F0C2DB3A30600FAF421 /* HomeScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewModel.swift; sourceTree = "<group>"; };
 		6F425F0D2DB3A30600FAF421 /* RouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
-		6F425F0F2DB3A30600FAF421 /* HomeCoordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCoordinate.swift; sourceTree = "<group>"; };
-		6F425F102DB3A30600FAF421 /* HomeDIPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDIPool.swift; sourceTree = "<group>"; };
-		6F425F112DB3A30600FAF421 /* HomeFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFactory.swift; sourceTree = "<group>"; };
 		6F425F1D2DB3A34C00FAF421 /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiClient.swift; sourceTree = "<group>"; };
 		6F425F1E2DB3A34C00FAF421 /* ApiError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiError.swift; sourceTree = "<group>"; };
 		6F425F1F2DB3A34C00FAF421 /* ApiParamEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiParamEncoder.swift; sourceTree = "<group>"; };
@@ -435,19 +423,9 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		6F425F0A2DB3A30600FAF421 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				6F425F092DB3A30600FAF421 /* HomeScreenViewController.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
 		6F425F0E2DB3A30600FAF421 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				6F425F0B2DB3A30600FAF421 /* ContactViewModel.swift */,
-				6F425F0C2DB3A30600FAF421 /* HomeScreenViewModel.swift */,
 				6F425F0D2DB3A30600FAF421 /* RouteViewModel.swift */,
 			);
 			path = ViewModel;
@@ -457,11 +435,7 @@
 			isa = PBXGroup;
 			children = (
 				6F425F082DB3A30600FAF421 /* Model */,
-				6F425F0A2DB3A30600FAF421 /* View */,
 				6F425F0E2DB3A30600FAF421 /* ViewModel */,
-				6F425F0F2DB3A30600FAF421 /* HomeCoordinate.swift */,
-				6F425F102DB3A30600FAF421 /* HomeDIPool.swift */,
-				6F425F112DB3A30600FAF421 /* HomeFactory.swift */,
 			);
 			path = HomeScreen;
 			sourceTree = "<group>";
@@ -745,14 +719,8 @@
 				6F425F352DB3A34C00FAF421 /* DefaultAPIClient.swift in Sources */,
 				6F425F362DB3A34C00FAF421 /* LocalStorageService.swift in Sources */,
 				6F425F132DB3A30600FAF421 /* RouteViewModel.swift in Sources */,
-				6F425F142DB3A30600FAF421 /* HomeScreenViewModel.swift in Sources */,
-				6F425F152DB3A30600FAF421 /* HomeCoordinate.swift in Sources */,
-				6F425F162DB3A30600FAF421 /* ContactViewModel.swift in Sources */,
 				6F425F172DB3A30600FAF421 /* Route.swift in Sources */,
-				6F425F182DB3A30600FAF421 /* HomeDIPool.swift in Sources */,
-				6F425F192DB3A30600FAF421 /* HomeFactory.swift in Sources */,
 				6F425F1A2DB3A30600FAF421 /* DirectionResponse.swift in Sources */,
-				6F425F1B2DB3A30600FAF421 /* HomeScreenViewController.swift in Sources */,
 				6F425F1C2DB3A30600FAF421 /* ReverseGeocodeToAddressResponse.swift in Sources */,
 				551BD8472DA18E990072A857 /* Constants.swift in Sources */,
 				551BD83D2DA132AB0072A857 /* TabbarViewController.swift in Sources */,

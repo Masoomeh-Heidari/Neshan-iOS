@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
 import CoreLocation
 import Combine
 
@@ -16,7 +14,7 @@ class MapScreen: UIViewController {
     private var cancellables = Set<AnyCancellable>()
 
     var mapView:NTMapView!
-    var locationManager:CLLocationManager!
+//    var locationManager:CLLocationManager!
     var infoBox: DestinationInfosView!
     
     
@@ -96,10 +94,7 @@ class MapScreen: UIViewController {
         super.viewDidLoad()
         
         self.initMap()
-        //        self.setUserCurrentLocation(using: (x: self.azadiLat, y: self.azadiLng))
-        self.initUserLocation()
         self.binding()
-        self.bindViewModel()
         self.setupInfoBox()
     }
     
@@ -130,17 +125,26 @@ class MapScreen: UIViewController {
             mapView?.setFocalPointPosition(NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y), durationSeconds: 0.4)
             mapView?.setZoom(16, durationSeconds: 0.4)
         }).store(in: &cancellables)
-    }
-    
-    fileprivate func initUserLocation() {
-        locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.allowsBackgroundLocationUpdates = true
-        locationManager.activityType = .other
-        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-        self.checkLocationAuthorization(using: self.locationManager)
+        
+        viewModel.locationMarkersUpdated
+            .sink { [weak self] infos in
+                guard let self else { return }
+
+                self.markerLayer?.clear()
+                for info in infos {
+                    self.addMarkerToMap(location: info.coordinate,
+                                         icon: info.icon,
+                                         id: info.id)
+                }
+            }
+            .store(in: &cancellables)
+        
+        mapEventListener.onMapTap = { [weak self] location in
+            guard let self else { return }
+            self.viewModel.onMapTap(at: location)
+            self.fetchAddressAndUpdateInfoBox(for: location)
+            self.showBottomView()
+        }
     }
     
     fileprivate func initMap() {
@@ -180,7 +184,7 @@ class MapScreen: UIViewController {
             
         ])
         setupBottomView()
-        
+        self.getCurrentLocation()
     }
     
     //MARK: - ViewSetup
@@ -221,7 +225,6 @@ class MapScreen: UIViewController {
         
         currenLocalButton.translatesAutoresizingMaskIntoConstraints = false
         mapView?.addSubview(currenLocalButton)
-        currenLocalButton.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
         NSLayoutConstraint.activate([
             currenLocalButton.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor, constant: -16),
             currenLocalButton.bottomAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: -16),
@@ -231,20 +234,29 @@ class MapScreen: UIViewController {
     }
     
     @objc func goToSearch() {
-        let userLocation = self.locationManager.location
-        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
-        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
+        self.viewModel.locationService.startUpdatingLocation { result in
+            switch result {
+            case .success(let userLocation):
+                self.lat = userLocation.longitude //?? self.azadiLat
+                self.lng = userLocation.latitude //?? self.azadiLng
+                self.viewModel.showSearch.send((x: self.lat, y: self.lng))
+            case .failure: break
+            }
+        }
     }
     
     func setupInfoBox() {
         infoBox = DestinationInfosView()
         infoBox.translatesAutoresizingMaskIntoConstraints = false
         infoBox.dismissAction = { [weak self] in
-            self?.hideBottomView()
+            guard let self else { return }
+
+            self.hideBottomView()
         }
         infoBox.onMakeRouteTap = { [weak self] in
-            self?.showRoutesOnMap()
+            guard let self else { return }
+
+            self.showRoutesOnMap()
         }
         self.view.addSubview(infoBox)
         
@@ -270,65 +282,32 @@ class MapScreen: UIViewController {
         }
     }
     
-    func bindViewModel() {
-            getCurrentLocation()
-            
-            viewModel.locationMarkersUpdated
-                .sink { [weak self] infos in
-                    self?.markerLayer?.clear()
-                    for info in infos {
-                        self?.addMarkerToMap(location: info.coordinate,
-                                             icon: info.icon,
-                                             id: info.id)
-                    }
-                }
-                .store(in: &cancellables)
-            
-            mapEventListener.onMapTap = { [weak viewModel] location in
-                viewModel?.onMapTap(at: location)
-                self.fetchAddressAndUpdateInfoBox(for: location)
-                self.showBottomView()
-            }
-    }
-    
     func fetchAddressAndUpdateInfoBox(for location: CLLocationCoordinate2D) {
         self.viewModel.getAddress(at: location)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    print("Error fetching address: \(error)")
-                }
+            .sink { _ in
+                print("sink getAddress")
             } receiveValue: { [weak self] address in
-                self?.location = location
-                DispatchQueue.main.async {
-                    self?.infoBox.setDestinationName(address.routeName)
-                    self?.infoBox.setDestinationFullAddress(address.formattedAddress)
-                }
-            }
-            .store(in: &cancellables)
+                guard let self else { return }
+                self.location = location
+                self.infoBox.setDestinationName(address.routeName)
+                self.infoBox.setDestinationFullAddress(address.formattedAddress)
+            }.store(in: &cancellables)
     
     
         
         self.viewModel.getDirectionToDestination(at: location)
-            .sink { [weak self] result in
-                switch result {
-                case .finished:
-                    break
-                case .failure(let error):
-                    print("Error fetching address: \(error)")
-                }
+            .sink { _ in
+                print("sink getDirectionToDestination")
             } receiveValue: { [weak self] result in
-                self?.routeLayers?.clear()
-                self?.routes = result
+                guard let self else { return }
+
+                self.routeLayers?.clear()
+                self.routes = result
                 for route in result {
-                    DispatchQueue.main.async {
-                        let duration = route.route.legs?.first?.duration.text
-                        self?.duration = duration ?? ""
-                        let distance = route.route.legs?.first?.distance.text
-                        self?.infoBox.setDuration(duration: duration, distance: distance)
-                    }
+                    let duration = route.route.legs?.first?.duration.text
+                    self.duration = duration ?? ""
+                    let distance = route.route.legs?.first?.distance.text
+                    self.infoBox.setDuration(duration: duration, distance: distance)
                 }
             } .store(in: &cancellables)
             
@@ -478,16 +457,11 @@ class MapScreen: UIViewController {
     func getCurrentLocation() {
         self.markerLayer?.clear()
         self.viewModel.getMyCurrentLocation()
-            .sink { [weak self] result in
-                switch result {
-                case .finished:
-                    break
-                case .failure(let error):
-                    print("Error fetching address: \(error)")
-                }
-                
+            .sink { _ in
+                print("sink getCurrentLocation")
             } receiveValue: { [weak self] location in
-                self?.updateMapWithLocation(location)
+                guard let self else { return }
+                self.updateMapWithLocation(location)
             } .store(in: &cancellables)
     }
     
@@ -508,11 +482,9 @@ class MapScreen: UIViewController {
     }
     
     func showBottomView() {
-        DispatchQueue.main.async {
-            self.infoBox.isHidden = false
-            UIView.animate(withDuration: 0.1) {
-                self.infoBox.alpha = 1.0
-            }
+        self.infoBox.isHidden = false
+        UIView.animate(withDuration: 0.1) {
+            self.infoBox.alpha = 1.0
         }
     }
     
@@ -523,33 +495,6 @@ class MapScreen: UIViewController {
             self.infoBox.alpha = 0.0
         }) { _ in
             self.infoBox.isHidden = true
-        }
-    }
-}
-
-extension MapScreen: CLLocationManagerDelegate {
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        self.checkLocationAuthorization(using: manager)
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let userLocation :CLLocation = locations[0] as CLLocation
-        
-        self.lat = userLocation.coordinate.longitude
-        self.lng = userLocation.coordinate.latitude
-        
-        self.viewModel.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
-    }
-    
-    fileprivate func checkLocationAuthorization(using manager: CLLocationManager) {
-        switch manager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.startUpdatingLocation()
-            break
-        case .denied, .notDetermined, .restricted:
-            self.setUserCurrentLocation(using: (x: self.azadiLat, y: self.azadiLng))
-        @unknown default:
-            break
         }
     }
 }
