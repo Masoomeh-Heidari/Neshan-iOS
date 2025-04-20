@@ -8,7 +8,15 @@ class SearchScreen: UIViewController {
     @IBOutlet weak var textField: UITextField!
     @IBOutlet weak var tableView: UITableView!
     
-    private var cancellables = Set<AnyCancellable>()  // Replace DisposeBag with Set<AnyCancellable>
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.color = Colors.textColor
+        return indicator
+    }()
+
+    
+    private var cancellables = Set<AnyCancellable>()
 
     var items = [SearchItemDto]()
     var searchTerm: String = ""
@@ -43,6 +51,7 @@ class SearchScreen: UIViewController {
         super.viewDidLoad()
         self.setupUI()
         self.binding()
+        setupLoading()
     }
 
     fileprivate func setupUI() {
@@ -52,22 +61,37 @@ class SearchScreen: UIViewController {
         tableView.delegate = self
     }
     
+    private func setupLoading() {
+        tableView.addSubview(loadingIndicator)
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            loadingIndicator.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
+            loadingIndicator.widthAnchor.constraint(equalToConstant: 50),
+            loadingIndicator.heightAnchor.constraint(equalToConstant: 50)
+        ])
+
+    }
+    
     fileprivate func binding() {
-        // Replacing RxSwift's textField.rx.text with Combine's textField.publisher
+        viewModel.isLoading
+            .sink { [weak self] isLoading in
+                isLoading ? self?.loadingIndicator.startAnimating(): self?.loadingIndicator.stopAnimating()
+            }
+            .store(in: &cancellables)
         NotificationCenter.default
                     .publisher(for: UITextField.textDidChangeNotification, object: textField)
                     .map( {
                         ($0.object as? UITextField)?.text ?? ""
                     })
-            .debounce(for: .milliseconds(1000), scheduler: DispatchQueue.main) // Debounce
+            .debounce(for: .milliseconds(1000), scheduler: DispatchQueue.main)
             .sink { [weak self] txt in
                 guard let self = self else { return }
                 self.searchTerm = txt
-                self.viewModel.searchTerm.send(txt)  // Send value using Combine's PassthroughSubject
+                self.viewModel.searchTerm.send(txt)
             }
             .store(in: &cancellables)
-        
-        // Binding searchResult to update UI
+  
         viewModel.searchResult
             .sink { [weak self] list in
                 guard let self = self else { return }
@@ -88,7 +112,7 @@ extension SearchScreen: UITableViewDelegate {
         if let index = self.items.firstIndex(where: { $0 == self.items[indexPath.row]}) {
             item = items.remove(at: index)
         }
-        self.viewModel.selectedItem.send((term: self.searchTerm, selectedItem: item!, result: items))  // Send value using PassthroughSubject
+        self.viewModel.selectedItem.send((term: self.searchTerm, selectedItem: item!, result: items))  
     }
 }
 
