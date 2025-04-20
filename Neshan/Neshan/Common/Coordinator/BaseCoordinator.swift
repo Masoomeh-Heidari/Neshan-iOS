@@ -9,10 +9,11 @@ class BaseCoordinator<ResultType>: BaseCoordinatorProtocol {
     
     typealias CoordinationResult = ResultType
     
-    // Use a Set of Cancellable to store Combine subscriptions
     var cancellables = Set<AnyCancellable>()
+
+    private let _identifier = UUID()
+    var identifier: UUID { _identifier }
     
-    private let identifier = UUID()
     private var childCoordinators = [UUID: Any]()
     
     private func store<T>(coordinator: BaseCoordinator<T>) {
@@ -33,6 +34,6 @@ class BaseCoordinator<ResultType>: BaseCoordinatorProtocol {
     }
     
     func start() -> AnyPublisher<ResultType, Never> {
-        fatalError("Start method should be implemented.")
+        fatalError("Subclasses must override this")
     }
 }

@@ -22,84 +22,47 @@ class DefaultAPIClient: ApiClient {
     }
     
     
-    func request<T: Decodable>(endpoint: ApiRequestable,
-                               completion: @escaping CompletionHandler<T>) throws -> APIClientTaskCancelable? {
+    func request<T: Decodable>(endpoint: ApiRequestable) async throws -> T {
         let request = try buildURLRequest(endpoint: endpoint)
-        let task = session.dataTask(with: request) { data, response, error in
-            
-            if let error = error as? URLError {
-                guard error.code != .notConnectedToInternet else {
-                    completion(.failure(APIError.notConnectedToInternet))
-                    return
-                }
-                completion(.failure(APIError.requestFailed(error)))
-                return
-            }
-            
-            guard let response = response as? HTTPURLResponse else {
-                completion(.failure(APIError.validationResponse(statusCode: 0, message: "No Response")))
-                return
-            }
-            
-            guard 200..<300 ~= response.statusCode else {
-                completion(.failure(APIError.validationResponse(statusCode: response.statusCode,
-                                                                message: response.statusCode.description)))
-                return
-            }
-            
-            guard let data else {
-                completion(.failure(APIError.validationResponse(statusCode: response.statusCode, message: "NO data")))
-                    return
-            }
-            
-            do  {
-                print("data is \(String(data: data, encoding: .utf8) ?? "Invalid Data")")
-                
-                let object = try JSONDecoder().decode(T.self, from: data)
-                completion(.success(object))
-            } catch let error {
-                completion(.failure(APIError.decodingError(error)))
-            }
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.validationResponse(statusCode: 0, message: "No Response")
         }
-        task.resume()
-        return task
+        
+        guard 200..<300 ~= httpResponse.statusCode else {
+            throw APIError.validationResponse(statusCode: httpResponse.statusCode,
+                                              message: httpResponse.statusCode.description)
+        }
+        
+        print("data is \(String(data: data, encoding: .utf8) ?? "Invalid Data")")
+        
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            throw APIError.decodingError(error)
+        }
     }
+
     
-    func requestData(endpoint: ApiRequestable,
-                     completion: @escaping CompletionHandler<Data>) throws ->  APIClientTaskCancelable? {
+    func requestData(endpoint: ApiRequestable) async throws -> Data {
         let request = try buildURLRequest(endpoint: endpoint)
-        let task = session.dataTask(with: request) { data, response, error in
-            
-            if let error = error as? URLError {
-                guard error.code != .notConnectedToInternet else {
-                    completion(.failure(APIError.notConnectedToInternet))
-                    return
-                }
-                completion(.failure(APIError.requestFailed(error)))
-                return
-            }
-            
-            guard let response = response as? HTTPURLResponse else {
-                completion(.failure(APIError.validationResponse(statusCode: 0, message: "No Response")))
-                return
-            }
-            
-            guard 200..<300 ~= response.statusCode else {
-                completion(.failure(APIError.validationResponse(statusCode: response.statusCode,
-                                                                message: response.statusCode.description)))
-                return
-            }
-            
-            guard let data else {
-                completion(.failure(APIError.validationResponse(statusCode: response.statusCode, message: "NO data")))
-                return
-            }
-            
-            completion(.success(data))
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.validationResponse(statusCode: 0, message: "No Response")
         }
-        task.resume()
-        return task
+        
+        guard 200..<300 ~= httpResponse.statusCode else {
+            throw APIError.validationResponse(statusCode: httpResponse.statusCode,
+                                              message: httpResponse.statusCode.description)
+        }
+        
+        return data
     }
+
     
     func buildURLRequest(endpoint: ApiRequestable) throws -> URLRequest {
         try endpoint.urlRequest(baseURL: baseURL,

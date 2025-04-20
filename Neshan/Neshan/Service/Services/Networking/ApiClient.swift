@@ -19,15 +19,9 @@ protocol ApiClient: AnyObject {
     typealias CompletionHandler<T> = (Result<T, APIError>) -> Void
     
     @discardableResult
-    func request<T: Decodable>(
-        endpoint: ApiRequestable,
-        completion: @escaping CompletionHandler<T>
-    ) throws -> APIClientTaskCancelable?
+    func request<T: Decodable>(endpoint: ApiRequestable) async throws -> T
     
     @discardableResult
-    func requestData(
-        endpoint: ApiRequestable,
-        completion: @escaping CompletionHandler<Data>
-    ) throws -> APIClientTaskCancelable?
+    func requestData(endpoint: ApiRequestable) async throws -> Data
 }
 

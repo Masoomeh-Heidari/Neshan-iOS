@@ -58,11 +58,17 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
             guard coordinate != kCLLocationCoordinate2DInvalid else {
                 return
             }
-            completion(.success(coordinate))
+            DispatchQueue.main.async {
+                completion(.success(coordinate))
+            }
             self?.onceLocation = nil
         }
         
-        self.didFailWithError = { error in completion(.failure(error)) }
+        self.didFailWithError = { error in
+            DispatchQueue.main.async {
+                completion(.failure(error))
+            }
+        }
         locationManager.requestLocation()
     }
     
@@ -78,10 +84,16 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
             guard coordinate != kCLLocationCoordinate2DInvalid else {
                 return
             }
-            completion(.success(coordinate))
+            DispatchQueue.main.async {
+                completion(.success(coordinate))
+            }
         }
         
-        self.didFailWithError = { error in completion(.failure(error)) }
+        self.didFailWithError = { error in
+            DispatchQueue.main.async {
+                completion(.failure(error))
+            }
+        }
     }
     
     func stopUpdatingLocation() {

@@ -128,21 +128,37 @@ final class DefaultGeoLocationService: GeoLocationService {
                                   method: .get,
                                   queryParameters: ["lat": coordinate.latitude, "lng": coordinate.longitude])
         
-        return Future { [weak self] promise in
-            do {
-                try self?.apiService.request(endpoint: endpoint) { (result: Result<ReverseGeocodeToAddressResponse, APIError>) in
-                    switch result {
-                    case .success(let response):
-                        promise(.success(response))
-                    case .failure(let error):
+//        return Future { [weak self] promise in
+//            do {
+//                try self?.apiService.request(endpoint: endpoint) { (result: Result<ReverseGeocodeToAddressResponse, APIError>) in
+//                    switch result {
+//                    case .success(let response):
+//                        promise(.success(response))
+//                    case .failure(let error):
+//                        promise(.failure(error))
+//                    }
+//                }
+//            } catch {
+//                promise(.failure(APIError.unknown))
+//            }
+//        }.eraseToAnyPublisher()
+        
+           return Future<ReverseGeocodeToAddressResponse, APIError> { [weak self] promise in
+                guard let self else { return }
+                Task {
+                    do {
+                        let data = try await self.apiService.requestData(endpoint: endpoint)
+                        let decoded = try JSONDecoder().decode(ReverseGeocodeToAddressResponse.self, from: data)
+                        promise(.success(decoded))
+                    } catch let error as APIError {
                         promise(.failure(error))
+                    } catch {
+                        promise(.failure(APIError.decodingError(error)))
                     }
                 }
-            } catch {
-                promise(.failure(APIError.unknown))
             }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
+
     }
     
     // Refactored to use Combine's Future
@@ -177,21 +193,25 @@ final class DefaultGeoLocationService: GeoLocationService {
                                   method: .get,
                                   queryParameters: queryParameters)
         
-        return Future { [weak self] promise in
-            do {
-                try self?.apiService.request(endpoint: endpoint) { (result: Result<DirectionResponse, APIError>) in
-                    switch result {
-                    case .success(let response):
+            return Future<DirectionResponse, APIError> { [weak self] promise in
+                Task {
+                    do {
+                        guard let self else {
+                            promise(.failure(.unknown))
+                            return
+                        }
+                        
+                        let response: DirectionResponse = try await self.apiService.request(endpoint: endpoint)
                         promise(.success(response))
-                    case .failure(let error):
+                        
+                    } catch let error as APIError {
                         promise(.failure(error))
+                    } catch {
+                        promise(.failure(.unknown))
                     }
                 }
-            } catch {
-                promise(.failure(APIError.unknown))
             }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 }
 

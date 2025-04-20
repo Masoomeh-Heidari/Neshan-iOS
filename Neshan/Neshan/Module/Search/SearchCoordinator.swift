@@ -22,9 +22,10 @@ class SearchCoordinator: BaseCoordinator<DoneCoordinatorResult> {
     override func start() -> AnyPublisher<DoneCoordinatorResult, Never> {
         let vc = SearchScreen(viewModel: self.viewModel)
         
-        let sheetController = SheetViewController(controller: vc, sizes: [.fullscreen])
+        let sheetController = SheetViewController(controller: vc, sizes: [.marginFromTop(24.0)])
         sheetController.gripColor = UIColor(white: 0.868, alpha: 0.1)
         sheetController.dismissOnPull = true
+        sheetController.dismissOnOverlayTap = true
         self.rootViewController.present(sheetController, animated: false)
         
         let confirm = viewModel.selectedItem.map { CoordinationResult.done($0) }

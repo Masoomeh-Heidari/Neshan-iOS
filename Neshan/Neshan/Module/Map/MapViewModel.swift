@@ -50,7 +50,11 @@ class MapViewModel: BaseViewModel {
                 promise(.failure(AppError.generalError))
                 return
             }
-            self.locationService.startUpdatingLocation { result in
+            self.locationService.startUpdatingLocation { [weak self] result in
+                guard let self else {
+                    promise(.failure(AppError.generalError))
+                    return
+                }
                 switch result {
                 case .success(let userLocation):
                     self.locationMarkers.removeAll(where: { marker in
@@ -88,7 +92,7 @@ class MapViewModel: BaseViewModel {
               .map { response in
                 let routeViewModels = response.routes.compactMap { RouteViewModel(route: $0) }
                 
-                let allCoordinates = routeViewModels.flatMap { $0.coordinates }
+//                let allCoordinates = routeViewModels.flatMap { $0.coordinates }
                 
                 return routeViewModels // Return the RouteViewModels as expected by the method
             }

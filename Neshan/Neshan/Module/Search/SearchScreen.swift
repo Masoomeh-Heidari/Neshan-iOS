@@ -22,9 +22,11 @@ class SearchScreen: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-//    deinit {
-//        self.viewModel.cancel.onNext(())
-//    }
+    deinit {
+        self.viewModel.cancel.send(())
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+    }
     
     
     override func viewDidDisappear(_ animated: Bool) {

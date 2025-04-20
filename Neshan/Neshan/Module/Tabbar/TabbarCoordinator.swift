@@ -20,6 +20,7 @@ class TabbarCoordinator: BaseCoordinator<Void> {
     }()
 
     deinit {
+        cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
     }
     
@@ -41,22 +42,6 @@ class TabbarCoordinator: BaseCoordinator<Void> {
         viewController.tabBar.isTranslucent = false
         viewController.viewControllers = viewControllers
         viewController.selectedIndex = self.selectedIndex
-//        let coordinates = viewControllers.enumerated()
-//            .map { (offset, element) -> Observable<Void> in
-//                guard let items = TabbarItem(rawValue: offset) else { return Observable.just(() )}
-//                switch items {
-//                case .other:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .business:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .experience:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .pin:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .map:
-//                    return coordinate(to: MapCoordinator(navigationController: element))
-//                }
-//            }
         
         let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated()
             .map { (offset, element) -> AnyPublisher<Void, Never> in

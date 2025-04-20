@@ -13,7 +13,6 @@ class MapCoordinator: BaseCoordinator<Void> {
     private let navigationController: UINavigationController
     let apiClient: ApiClient
 
-    
     init(navigationController: UINavigationController, apiClient: ApiClient) {
         self.navigationController = navigationController
         self.apiClient = apiClient
@@ -29,7 +28,7 @@ class MapCoordinator: BaseCoordinator<Void> {
                 guard let self = self else {
                     return Just(nil).eraseToAnyPublisher()
                 }
-                return self.goToSearchScreen(using: location, rootViewController: vc)
+                return self.goToSearchScreen(using: location, rootViewController: vc).eraseToAnyPublisher()
             }
             .compactMap { $0 } // Remove nils
             .sink { result in

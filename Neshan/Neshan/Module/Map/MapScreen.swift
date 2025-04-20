@@ -98,10 +98,14 @@ class MapScreen: UIViewController {
         self.setupInfoBox()
     }
     
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+    }
     
     fileprivate func binding() {
-        self.viewModel.showSearchBox
+        self.viewModel.showSearchBox.receive(on: RunLoop.main)
             .sink(receiveValue: { [weak self] items in
                 
             guard let self else { return }
@@ -126,7 +130,7 @@ class MapScreen: UIViewController {
             mapView?.setZoom(16, durationSeconds: 0.4)
         }).store(in: &cancellables)
         
-        viewModel.locationMarkersUpdated
+        viewModel.locationMarkersUpdated.receive(on: RunLoop.main)
             .sink { [weak self] infos in
                 guard let self else { return }
 
@@ -142,6 +146,8 @@ class MapScreen: UIViewController {
         mapEventListener.onMapTap = { [weak self] location in
             guard let self else { return }
             self.viewModel.onMapTap(at: location)
+            self.lat = location.longitude
+            self.lng = location.latitude
             self.fetchAddressAndUpdateInfoBox(for: location)
             self.showBottomView()
         }
@@ -197,8 +203,6 @@ class MapScreen: UIViewController {
     private func configureSearchView() {
         searchViewContainer.backgroundColor = .white
         searchViewContainer.translatesAutoresizingMaskIntoConstraints = false
-        searchViewContainer.isUserInteractionEnabled = true
-        searchViewContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSearch)))
         mapView?.addSubview(searchViewContainer)
         NSLayoutConstraint.activate([
             searchViewContainer.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor),
@@ -234,15 +238,7 @@ class MapScreen: UIViewController {
     }
     
     @objc func goToSearch() {
-        self.viewModel.locationService.startUpdatingLocation { result in
-            switch result {
-            case .success(let userLocation):
-                self.lat = userLocation.longitude //?? self.azadiLat
-                self.lng = userLocation.latitude //?? self.azadiLng
-                self.viewModel.showSearch.send((x: self.lat, y: self.lng))
-            case .failure: break
-            }
-        }
+        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
     }
     
     func setupInfoBox() {
@@ -283,7 +279,7 @@ class MapScreen: UIViewController {
     }
     
     func fetchAddressAndUpdateInfoBox(for location: CLLocationCoordinate2D) {
-        self.viewModel.getAddress(at: location)
+        self.viewModel.getAddress(at: location).receive(on: RunLoop.main)
             .sink { _ in
                 print("sink getAddress")
             } receiveValue: { [weak self] address in
@@ -295,7 +291,7 @@ class MapScreen: UIViewController {
     
     
         
-        self.viewModel.getDirectionToDestination(at: location)
+        self.viewModel.getDirectionToDestination(at: location).receive(on: RunLoop.main)
             .sink { _ in
                 print("sink getDirectionToDestination")
             } receiveValue: { [weak self] result in
@@ -456,11 +452,13 @@ class MapScreen: UIViewController {
     
     func getCurrentLocation() {
         self.markerLayer?.clear()
-        self.viewModel.getMyCurrentLocation()
+        self.viewModel.getMyCurrentLocation().receive(on: RunLoop.main)
             .sink { _ in
                 print("sink getCurrentLocation")
             } receiveValue: { [weak self] location in
                 guard let self else { return }
+                self.lat = location.longitude
+                self.lng = location.latitude
                 self.updateMapWithLocation(location)
             } .store(in: &cancellables)
     }
@@ -482,9 +480,11 @@ class MapScreen: UIViewController {
     }
     
     func showBottomView() {
-        self.infoBox.isHidden = false
-        UIView.animate(withDuration: 0.1) {
-            self.infoBox.alpha = 1.0
+        DispatchQueue.main.async {
+            self.infoBox.isHidden = false
+            UIView.animate(withDuration: 0.1) {
+                self.infoBox.alpha = 1.0
+            }
         }
     }
     
