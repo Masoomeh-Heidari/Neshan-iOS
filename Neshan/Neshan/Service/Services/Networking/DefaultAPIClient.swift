@@ -7,6 +7,7 @@
 
 import Foundation
 
+// TODO: Decide where to use Alamofire or URLSession based on complexity
 class DefaultAPIClient: ApiClient {
     
     let apiKey: String

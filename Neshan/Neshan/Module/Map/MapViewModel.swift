@@ -14,7 +14,6 @@ let UserLocationID = "userCurrentLocation"
 
 class MapViewModel: BaseViewModel {
     
-    // Combine Subjects to replace delegates
     var locationMarkersUpdated = PassthroughSubject<[LocationMarkerViewModel], Never>()
     
     var userLocation           = PassthroughSubject<(x: Double, y: Double), Never>()
@@ -23,7 +22,6 @@ class MapViewModel: BaseViewModel {
     var showSearchBox          = PassthroughSubject<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto]), Never>()
 
     
-    // @Published for reactive properties
     @Published private var locationMarkers: [LocationMarkerViewModel] = []
     @Published private var routes: [RouteViewModel] = []
     
@@ -38,8 +36,8 @@ class MapViewModel: BaseViewModel {
         super.init()
     }
     
-    // Method to get current location, converted to Combine publisher
     func getMyCurrentLocation() -> AnyPublisher<CLLocationCoordinate2D, Error> {
+        //TODO: Handle more granular authorization statuses
         guard locationService.checkAuthorizationStatus() != .denied else {
             return Fail(error: HomeScreenError.locationServicesDisabled)
                 .eraseToAnyPublisher()
@@ -75,8 +73,7 @@ class MapViewModel: BaseViewModel {
             return Fail(error: APIError.invalidRequest)
                 .eraseToAnyPublisher()
         }
-        
-        // Now directly return the publisher from geolocationService.getDirection
+       //TODO: Replace hardcoded with variables or a more scalable resource management system.
         return geolocationService.getDirection(from: currentUserLocation,
                                                to: destination,
                                                type: "car",
@@ -90,7 +87,7 @@ class MapViewModel: BaseViewModel {
                 
                 let allCoordinates = routeViewModels.flatMap { $0.coordinates }
                 
-                return routeViewModels // Return the RouteViewModels as expected by the method
+                return routeViewModels
             }
             .eraseToAnyPublisher()
     }
@@ -107,7 +104,6 @@ class MapViewModel: BaseViewModel {
     }
 
     
-    // Method to handle map tap and update markers, converted to Combine publisher
     func onMapTap(at coordinate: CLLocationCoordinate2D) {
         DispatchQueue.main.async { [self] in
             let newMarker = LocationMarkerViewModel(id: "tripLocation",
@@ -121,7 +117,6 @@ class MapViewModel: BaseViewModel {
         }
     }
 
-    // Method to get markers, unchanged from before but added as a helper function.
     fileprivate func getMarkers(by items: [SearchItemDto], hasAnimated: Bool = false) -> [NTMarker] {
         let builder = NTMarkerStyleCreator()
         

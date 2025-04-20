@@ -54,11 +54,8 @@
 		6F425F2F2DB3A34C00FAF421 /* LocationServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F2A2DB3A34C00FAF421 /* LocationServices.swift */; };
 		6F425F302DB3A34C00FAF421 /* GeoLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F292DB3A34C00FAF421 /* GeoLocationService.swift */; };
 		6F425F312DB3A34C00FAF421 /* AnyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F282DB3A34C00FAF421 /* AnyRequest.swift */; };
-		6F425F322DB3A34C00FAF421 /* ContactsProdiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F232DB3A34C00FAF421 /* ContactsProdiver.swift */; };
-		6F425F332DB3A34C00FAF421 /* TripLocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F262DB3A34C00FAF421 /* TripLocalStorageService.swift */; };
 		6F425F342DB3A34C00FAF421 /* ApiError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F1E2DB3A34C00FAF421 /* ApiError.swift */; };
 		6F425F352DB3A34C00FAF421 /* DefaultAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F212DB3A34C00FAF421 /* DefaultAPIClient.swift */; };
-		6F425F362DB3A34C00FAF421 /* LocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F252DB3A34C00FAF421 /* LocalStorageService.swift */; };
 		6F425F392DB3A40F00FAF421 /* MapEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F372DB3A40F00FAF421 /* MapEventListener.swift */; };
 		6F425F3E2DB3A41800FAF421 /* CoreLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F3A2DB3A41800FAF421 /* CoreLocation.swift */; };
 		6F425F3F2DB3A41800FAF421 /* Polyline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F3C2DB3A41800FAF421 /* Polyline.swift */; };
@@ -88,6 +85,7 @@
 		6F425F752DB3A4F100FAF421 /* CoreLocation+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F6E2DB3A4F100FAF421 /* CoreLocation+Extensions.swift */; };
 		6F425F762DB3A4F100FAF421 /* UIColors + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F702DB3A4F100FAF421 /* UIColors + Extensions.swift */; };
 		6F425F772DB3A4F100FAF421 /* UIImageView + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F712DB3A4F100FAF421 /* UIImageView + Extensions.swift */; };
+		6F99F77D2DB4D005009382FD /* TextField + Extention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F99F77C2DB4CFF8009382FD /* TextField + Extention.swift */; };
 		C1474C6E305A0E44AD6C4BDA /* Pods_Neshan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */; };
 /* End PBXBuildFile section */
 
@@ -142,9 +140,6 @@
 		6F425F1F2DB3A34C00FAF421 /* ApiParamEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiParamEncoder.swift; sourceTree = "<group>"; };
 		6F425F202DB3A34C00FAF421 /* ApiRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiRequestable.swift; sourceTree = "<group>"; };
 		6F425F212DB3A34C00FAF421 /* DefaultAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAPIClient.swift; sourceTree = "<group>"; };
-		6F425F232DB3A34C00FAF421 /* ContactsProdiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsProdiver.swift; sourceTree = "<group>"; };
-		6F425F252DB3A34C00FAF421 /* LocalStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageService.swift; sourceTree = "<group>"; };
-		6F425F262DB3A34C00FAF421 /* TripLocalStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLocalStorageService.swift; sourceTree = "<group>"; };
 		6F425F282DB3A34C00FAF421 /* AnyRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRequest.swift; sourceTree = "<group>"; };
 		6F425F292DB3A34C00FAF421 /* GeoLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoLocationService.swift; sourceTree = "<group>"; };
 		6F425F2A2DB3A34C00FAF421 /* LocationServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationServices.swift; sourceTree = "<group>"; };
@@ -178,6 +173,7 @@
 		6F425F702DB3A4F100FAF421 /* UIColors + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColors + Extensions.swift"; sourceTree = "<group>"; };
 		6F425F712DB3A4F100FAF421 /* UIImageView + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView + Extensions.swift"; sourceTree = "<group>"; };
 		6F425F722DB3A4F100FAF421 /* UILable + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILable + Extensions.swift"; sourceTree = "<group>"; };
+		6F99F77C2DB4CFF8009382FD /* TextField + Extention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextField + Extention.swift"; sourceTree = "<group>"; };
 		B5F37472E377B740A80BC7FF /* Pods-Neshan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Neshan.release.xcconfig"; path = "Target Support Files/Pods-Neshan/Pods-Neshan.release.xcconfig"; sourceTree = "<group>"; };
 		DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Neshan.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -294,6 +290,7 @@
 		551BD8552DA2776C0072A857 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				6F99F77C2DB4CFF8009382FD /* TextField + Extention.swift */,
 				6F425F6E2DB3A4F100FAF421 /* CoreLocation+Extensions.swift */,
 				6F425F6F2DB3A4F100FAF421 /* String + Extensions.swift */,
 				6F425F702DB3A4F100FAF421 /* UIColors + Extensions.swift */,
@@ -452,29 +449,10 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		6F425F242DB3A34C00FAF421 /* Providers */ = {
-			isa = PBXGroup;
-			children = (
-				6F425F232DB3A34C00FAF421 /* ContactsProdiver.swift */,
-			);
-			path = Providers;
-			sourceTree = "<group>";
-		};
-		6F425F272DB3A34C00FAF421 /* Storages */ = {
-			isa = PBXGroup;
-			children = (
-				6F425F252DB3A34C00FAF421 /* LocalStorageService.swift */,
-				6F425F262DB3A34C00FAF421 /* TripLocalStorageService.swift */,
-			);
-			path = Storages;
-			sourceTree = "<group>";
-		};
 		6F425F2B2DB3A34C00FAF421 /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				6F425F222DB3A34C00FAF421 /* Networking */,
-				6F425F242DB3A34C00FAF421 /* Providers */,
-				6F425F272DB3A34C00FAF421 /* Storages */,
 				6F425F282DB3A34C00FAF421 /* AnyRequest.swift */,
 				6F425F292DB3A34C00FAF421 /* GeoLocationService.swift */,
 				6F425F2A2DB3A34C00FAF421 /* LocationServices.swift */,
@@ -699,6 +677,7 @@
 				6F425F742DB3A4F100FAF421 /* UILable + Extensions.swift in Sources */,
 				6F425F752DB3A4F100FAF421 /* CoreLocation+Extensions.swift in Sources */,
 				6F425F762DB3A4F100FAF421 /* UIColors + Extensions.swift in Sources */,
+				6F99F77D2DB4D005009382FD /* TextField + Extention.swift in Sources */,
 				6F425F772DB3A4F100FAF421 /* UIImageView + Extensions.swift in Sources */,
 				6F425F682DB3A45300FAF421 /* BaseViewController.swift in Sources */,
 				6F425F692DB3A45300FAF421 /* Colors.swift in Sources */,
@@ -713,11 +692,8 @@
 				6F425F302DB3A34C00FAF421 /* GeoLocationService.swift in Sources */,
 				6F425F392DB3A40F00FAF421 /* MapEventListener.swift in Sources */,
 				6F425F312DB3A34C00FAF421 /* AnyRequest.swift in Sources */,
-				6F425F322DB3A34C00FAF421 /* ContactsProdiver.swift in Sources */,
-				6F425F332DB3A34C00FAF421 /* TripLocalStorageService.swift in Sources */,
 				6F425F342DB3A34C00FAF421 /* ApiError.swift in Sources */,
 				6F425F352DB3A34C00FAF421 /* DefaultAPIClient.swift in Sources */,
-				6F425F362DB3A34C00FAF421 /* LocalStorageService.swift in Sources */,
 				6F425F132DB3A30600FAF421 /* RouteViewModel.swift in Sources */,
 				6F425F172DB3A30600FAF421 /* Route.swift in Sources */,
 				6F425F1A2DB3A30600FAF421 /* DirectionResponse.swift in Sources */,

@@ -31,6 +31,10 @@ class TabbarCoordinator: BaseCoordinator<Void> {
                 navigation.tabBarItem.image = items.icon
                 navigation.tabBarItem.selectedImage = items.selectedImage
                 navigation.tabBarItem.title = items.title
+                let attributes = [NSAttributedString.Key.font:Fonts.iranSansMobile(size: 11).font]
+                navigation.tabBarItem.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
+                navigation.tabBarItem.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .selected)
+
                 return navigation
             })
     }
@@ -41,22 +45,6 @@ class TabbarCoordinator: BaseCoordinator<Void> {
         viewController.tabBar.isTranslucent = false
         viewController.viewControllers = viewControllers
         viewController.selectedIndex = self.selectedIndex
-//        let coordinates = viewControllers.enumerated()
-//            .map { (offset, element) -> Observable<Void> in
-//                guard let items = TabbarItem(rawValue: offset) else { return Observable.just(() )}
-//                switch items {
-//                case .other:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .business:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .experience:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .pin:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .map:
-//                    return coordinate(to: MapCoordinator(navigationController: element))
-//                }
-//            }
         
         let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated()
             .map { (offset, element) -> AnyPublisher<Void, Never> in

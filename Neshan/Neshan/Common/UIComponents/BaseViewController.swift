@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+//TODO: Consider using this BaseViewController for inheritance to promote consistency in the code and reduce repetition.
 
 class BaseViewController<ViewModel>: UIViewController, ViewModelBindable {
         

@@ -6,6 +6,7 @@
 
 import CoreLocation
 
+//TODO: Make a location service helper to use all over the app  to get authorization and ..
 enum LocationServiceStatus: Int {
     case notDetermined
     case denied
@@ -37,7 +38,7 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
         locationManager.distanceFilter = 10
         locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
     }
-    
+    // MARK: - Location Authorization
     func checkAuthorizationStatus() -> LocationServiceStatus {
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse:
@@ -49,6 +50,7 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
         }
     }
     
+    // MARK: - Location Handling
     func requestOnceLocation(completion: @escaping (Result<CLLocationCoordinate2D,Error>) -> Void) {
         if checkAuthorizationStatus() == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
@@ -89,7 +91,7 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
         locationManager.stopUpdatingLocation()
     }
     
-    
+    // MARK: - CLLocationManagerDelegate Methods
     func locationManager(_ manager: CLLocationManager,
                          didUpdateLocations locations: [CLLocation]) {
         guard let latestLocation = locations.last else { return }
@@ -102,11 +104,6 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
                          didFailWithError error: Error) {
         print("Failed to get location: \(error.localizedDescription)")
         didFailWithError?(error)
-    }
-    
-    func locationManager(_ manager: CLLocationManager,
-                         didChangeAuthorization status: CLAuthorizationStatus) {
-        
     }
     
 }

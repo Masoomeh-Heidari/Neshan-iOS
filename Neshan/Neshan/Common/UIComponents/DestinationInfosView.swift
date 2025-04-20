@@ -134,7 +134,7 @@ class DestinationInfosView: UIView {
         super.init(coder: coder)
         setupView()
     }
-    
+    //TODO: Can break creating each view in seperate func to clearer code 
     private func setupView() {
         addSubview(containerView)
         containerView.addSubview(dismissButton)

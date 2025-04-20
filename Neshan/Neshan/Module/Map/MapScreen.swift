@@ -61,8 +61,10 @@ class MapScreen: UIViewController {
         textField.isEnabled = false
         textField.attributedPlaceholder = NSAttributedString(
             string: "جستجو در نشان",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray]
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray,
+                         NSAttributedString.Key.font: Fonts.iranSansMobile(size: 13).font as Any]
         )
+        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -241,6 +243,7 @@ class MapScreen: UIViewController {
                 self.lng = userLocation.latitude //?? self.azadiLng
                 self.viewModel.showSearch.send((x: self.lat, y: self.lng))
             case .failure: break
+            //TODO: Handle cases when location is unavailable (display a user-friendly message or fallback behavior).
             }
         }
     }
@@ -334,6 +337,7 @@ class MapScreen: UIViewController {
         
         let markStCr = NTMarkerStyleCreator()
         markStCr?.setSize(50)
+        //TODO: Provide a mechanism to dynamically adjust marker sizes based on map zoom level or user preferences.
         
         let bitmap = NTBitmapUtils.createBitmap(from: icon)
         markStCr?.setBitmap(bitmap)

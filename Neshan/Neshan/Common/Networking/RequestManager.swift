@@ -10,6 +10,7 @@
 import Foundation
 import FAlamofire
 
+// TODO: Decide where to use Alamofire or URLSession based on complexity
 typealias ServiceCallBack = (Result<Data?, AppError>) -> Void
 
 protocol RequestManagerProtocol {
