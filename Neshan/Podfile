@@ -6,8 +6,6 @@ target 'Neshan' do
   use_frameworks!
   
   pod 'FAlamofire', :path => '../FAlamofire'
-  pod 'RxSwift'
-  pod 'RxCocoa'
   pod 'NeshanMobileSDK', '~> 0.9.5'
   pod 'FittedSheets'
   pod 'IQKeyboardManagerSwift'

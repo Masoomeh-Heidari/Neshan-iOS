@@ -70,6 +70,9 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
         if checkAuthorizationStatus() == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
+        
+        locationManager.requestLocation()
+
         self.didUpdateLocation = { location in
             let coordinate = location.coordinate
             guard coordinate != kCLLocationCoordinate2DInvalid else {
@@ -79,7 +82,6 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
         }
         
         self.didFailWithError = { error in completion(.failure(error)) }
-        locationManager.startUpdatingLocation()
     }
     
     func stopUpdatingLocation() {

@@ -14,6 +14,7 @@ enum AppError: Error {
     case isOffline
     case custom
     case invalidResponse
+    case generalError
 }
 
 extension AppError: LocalizedError {
