@@ -34,9 +34,10 @@ class DefaultLocationService: NSObject, LocationService, CLLocationManagerDelega
     override init() {
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+//        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         locationManager.distanceFilter = 10
-        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.requestWhenInUseAuthorization()
     }
     // MARK: - Location Authorization
     func checkAuthorizationStatus() -> LocationServiceStatus {

@@ -25,7 +25,15 @@ class MapViewModel: BaseViewModel {
     @Published private var locationMarkers: [LocationMarkerViewModel] = []
     @Published private var routes: [RouteViewModel] = []
     
+    
     @Published var currentUserLocation: CLLocationCoordinate2D? = nil
+    
+    var userLocationPublisher: AnyPublisher<CLLocationCoordinate2D, Never> {
+           $currentUserLocation
+               .compactMap { $0 }
+               .eraseToAnyPublisher()
+       }
+    
     @Published var lastLocationSelected: CLLocationCoordinate2D? = nil
     
     let locationService: LocationService =  DefaultLocationService()
@@ -35,42 +43,48 @@ class MapViewModel: BaseViewModel {
         self.geolocationService = geoService
         super.init()
     }
-    
-    func getMyCurrentLocation() -> AnyPublisher<CLLocationCoordinate2D, Error> {
-        //TODO: Handle more granular authorization statuses
+
+
+    func getMyCurrentLocation() {
         guard locationService.checkAuthorizationStatus() != .denied else {
-            return Fail(error: HomeScreenError.locationServicesDisabled)
-                .eraseToAnyPublisher()
+            print("Location services are disabled")
+            return
         }
         
-        return Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(AppError.generalError))
-                return
-            }
-            self.locationService.startUpdatingLocation { [weak self] result in
-                guard let self else {
-                    promise(.failure(AppError.generalError))
-                    return
-                }
-                switch result {
-                case .success(let userLocation):
-                    self.locationMarkers.removeAll(where: { marker in
-                        marker.id == UserLocationID
-                    })
-                    self.locationMarkers.append(LocationMarkerViewModel(id: UserLocationID,
-                                                                         icon: UIImage(resource: .currentLocation),
-                                                                         latitude: userLocation.latitude,
-                                                                         longitude: userLocation.longitude))
-                    self.currentUserLocation = userLocation
-                    promise(.success(userLocation))
-                case .failure(let error):
-                    promise(.failure(error))
-                }
+        locationService.requestOnceLocation { [weak self] result in
+            switch result {
+            case .success(let userLocation):
+                self?.currentUserLocation = userLocation
+                self?.locationMarkers.removeAll(where: { marker in
+                    marker.id == UserLocationID
+                })
+                self?.locationMarkers.append(LocationMarkerViewModel(id: UserLocationID,
+                                                                     icon: UIImage(resource: .currentLocation),
+                                                                     latitude: userLocation.latitude,
+                                                                     longitude: userLocation.longitude))
+            case .failure(let error):
+                print("Failed to get location: \(error)")
             }
         }
-        .eraseToAnyPublisher()
+        
+        locationService.startUpdatingLocation { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let userLocation):
+                self.currentUserLocation = userLocation
+                self.locationMarkers.removeAll(where: { marker in
+                    marker.id == UserLocationID
+                })
+                self.locationMarkers.append(LocationMarkerViewModel(id: UserLocationID,
+                                                                     icon: UIImage(resource: .currentLocation),
+                                                                     latitude: userLocation.latitude,
+                                                                     longitude: userLocation.longitude))
+            case .failure(let error):
+                print("Failed to get location: \(error)")
+            }
+        }
     }
+
     
     func getDirectionToDestination(at destination: CLLocationCoordinate2D) -> AnyPublisher<[RouteViewModel], APIError> {
         guard let currentUserLocation = self.currentUserLocation else {

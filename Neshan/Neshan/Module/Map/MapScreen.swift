@@ -61,8 +61,10 @@ class MapScreen: UIViewController {
         textField.isEnabled = false
         textField.attributedPlaceholder = NSAttributedString(
             string: "جستجو در نشان",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray]
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray,
+                         NSAttributedString.Key.font: Fonts.iranSansMobile(size: 13).font as Any]
         )
+        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -88,6 +90,7 @@ class MapScreen: UIViewController {
     deinit {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
+        print("ViewModel deallocated")
     }
     
     override func viewDidLoad() {
@@ -151,6 +154,15 @@ class MapScreen: UIViewController {
             self.fetchAddressAndUpdateInfoBox(for: location)
             self.showBottomView()
         }
+        
+        self.viewModel.userLocationPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] location in
+                self?.lat = location.latitude
+                self?.lng = location.longitude
+                self?.updateMapWithLocation(location)
+            }
+            .store(in: &cancellables)
     }
     
     fileprivate func initMap() {
@@ -189,8 +201,8 @@ class MapScreen: UIViewController {
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             
         ])
+        self.goToCurrentLocation()
         setupBottomView()
-        self.getCurrentLocation()
     }
     
     //MARK: - ViewSetup
@@ -316,7 +328,7 @@ class MapScreen: UIViewController {
         addMarkerToMap(location: coordinate,
                        icon: UIImage(resource: .currentLocation),
                        id: "userCurrentLocation")
-        self.viewModel.currentUserLocation = coordinate
+//        self.viewModel.currentUserLocation = coordinate
     }
     
     func addMarkerToMap(location: CLLocationCoordinate2D, icon: UIImage, id: String) {
@@ -452,15 +464,7 @@ class MapScreen: UIViewController {
     
     func getCurrentLocation() {
         self.markerLayer?.clear()
-        self.viewModel.getMyCurrentLocation().receive(on: RunLoop.main)
-            .sink { _ in
-                print("sink getCurrentLocation")
-            } receiveValue: { [weak self] location in
-                guard let self else { return }
-                self.lat = location.longitude
-                self.lng = location.latitude
-                self.updateMapWithLocation(location)
-            } .store(in: &cancellables)
+        self.viewModel.getMyCurrentLocation()
     }
     
     fileprivate func setUserCurrentLocation(using loc: (x: Double, y: Double)) {
