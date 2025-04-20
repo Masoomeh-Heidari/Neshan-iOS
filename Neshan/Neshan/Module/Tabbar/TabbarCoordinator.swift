@@ -32,6 +32,10 @@ class TabbarCoordinator: BaseCoordinator<Void> {
                 navigation.tabBarItem.image = items.icon
                 navigation.tabBarItem.selectedImage = items.selectedImage
                 navigation.tabBarItem.title = items.title
+                let attributes = [NSAttributedString.Key.font:Fonts.iranSansMobile(size: 11).font]
+                navigation.tabBarItem.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
+                navigation.tabBarItem.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .selected)
+
                 return navigation
             })
     }

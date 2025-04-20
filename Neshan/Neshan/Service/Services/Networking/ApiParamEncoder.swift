@@ -7,6 +7,8 @@
 
 import Foundation
 
+// TODO: Decide where to use Alamofire or URLSession based on complexity
+
 protocol APIParamEncoder {
     func encodeRequestParameters<T>(_ request: URLRequest, _ value: T) throws -> URLRequest where T : Encodable
     

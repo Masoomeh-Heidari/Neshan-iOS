@@ -7,6 +7,7 @@
 
 import UIKit
 
+//TODO: Consider using this Colors for use to promote consistency in the code and reduce repetition and easy to develop and extend
 struct Colors {
     private static func dynamicColor(light: String, dark: String) -> UIColor {
         return UIColor { traitCollection in

@@ -19,6 +19,7 @@ class MapCoordinator: BaseCoordinator<Void> {
     }
     
     override func start() -> AnyPublisher<Void, Never> {
+        //TODO: Consider using dependency injection or a service locator to manage ViewModel instances, rather than directly creating them, to promote testability and flexibility.
         let vm = MapViewModel(geoService: DefaultGeoLocationService(apiService: apiClient))
     
         let vc = MapScreen(viewModel: vm)
@@ -30,7 +31,7 @@ class MapCoordinator: BaseCoordinator<Void> {
                 }
                 return self.goToSearchScreen(using: location, rootViewController: vc).eraseToAnyPublisher()
             }
-            .compactMap { $0 } // Remove nils
+            .compactMap { $0 }
             .sink { result in
                 vm.showSearchBox.send(result)
             }
@@ -58,6 +59,7 @@ extension MapCoordinator {
                 case .done(let item):
                     return item as? (term: String, selectedItem: SearchItemDto, result: [SearchItemDto])
                 case .cancel, .error:
+                    //TODO: Handle errors 
                     return nil
                 }
             }
