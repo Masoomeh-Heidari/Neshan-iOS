@@ -59,6 +59,13 @@ class SearchScreen: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.dataSource = self
         tableView.delegate = self
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "جستجو",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray,
+                         NSAttributedString.Key.font: Fonts.iranSansMobile(size: 13).font as Any]
+        )
+        textField.setLeftPaddingPoints(10)
+        textField.returnKeyType = .search
     }
     
     private func setupLoading() {
@@ -134,6 +141,7 @@ extension SearchScreen: UITableViewDataSource {
         }()
         cell.semanticContentAttribute = .forceRightToLeft
         cell.textLabel?.textAlignment = .right
+        cell.textLabel?.font = Fonts.iranSansMobile(size: 15).font
         cell.textLabel?.text = self.items[indexPath.row].title
         
         return cell
