@@ -86,6 +86,7 @@
 		6F425F762DB3A4F100FAF421 /* UIColors + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F702DB3A4F100FAF421 /* UIColors + Extensions.swift */; };
 		6F425F772DB3A4F100FAF421 /* UIImageView + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F425F712DB3A4F100FAF421 /* UIImageView + Extensions.swift */; };
 		6F99F77D2DB4D005009382FD /* TextField + Extention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F99F77C2DB4CFF8009382FD /* TextField + Extention.swift */; };
+		6F99F7C02DB7C135009382FD /* AudioBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F99F7BF2DB7C12D009382FD /* AudioBottomSheet.swift */; };
 		C1474C6E305A0E44AD6C4BDA /* Pods_Neshan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */; };
 /* End PBXBuildFile section */
 
@@ -174,6 +175,7 @@
 		6F425F712DB3A4F100FAF421 /* UIImageView + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView + Extensions.swift"; sourceTree = "<group>"; };
 		6F425F722DB3A4F100FAF421 /* UILable + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILable + Extensions.swift"; sourceTree = "<group>"; };
 		6F99F77C2DB4CFF8009382FD /* TextField + Extention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextField + Extention.swift"; sourceTree = "<group>"; };
+		6F99F7BF2DB7C12D009382FD /* AudioBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBottomSheet.swift; sourceTree = "<group>"; };
 		B5F37472E377B740A80BC7FF /* Pods-Neshan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Neshan.release.xcconfig"; path = "Target Support Files/Pods-Neshan/Pods-Neshan.release.xcconfig"; sourceTree = "<group>"; };
 		DF601F64800FBE265E2C7AA3 /* Pods_Neshan.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Neshan.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -351,6 +353,7 @@
 		551BD8622DA27DDE0072A857 /* Search */ = {
 			isa = PBXGroup;
 			children = (
+				6F99F7BF2DB7C12D009382FD /* AudioBottomSheet.swift */,
 				551BD85E2DA27DD60072A857 /* SearchScreen.swift */,
 				551BD85F2DA27DD60072A857 /* SearchScreen.xib */,
 				551BD8632DA27DF20072A857 /* SearchCoordinator.swift */,
@@ -696,6 +699,7 @@
 				6F425F352DB3A34C00FAF421 /* DefaultAPIClient.swift in Sources */,
 				6F425F132DB3A30600FAF421 /* RouteViewModel.swift in Sources */,
 				6F425F172DB3A30600FAF421 /* Route.swift in Sources */,
+				6F99F7C02DB7C135009382FD /* AudioBottomSheet.swift in Sources */,
 				6F425F1A2DB3A30600FAF421 /* DirectionResponse.swift in Sources */,
 				6F425F1C2DB3A30600FAF421 /* ReverseGeocodeToAddressResponse.swift in Sources */,
 				551BD8472DA18E990072A857 /* Constants.swift in Sources */,
@@ -865,8 +869,8 @@
 				INFOPLIST_FILE = "Neshan/Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Always Access to Location";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "When in use access to location";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "When in use access to microphone";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "When in use access to microphone";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 gps Location-services";
@@ -904,8 +908,8 @@
 				INFOPLIST_FILE = "Neshan/Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Always Access to Location";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "When in use access to location";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "When in use access to microphone";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "When in use access to microphone";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 gps Location-services";
