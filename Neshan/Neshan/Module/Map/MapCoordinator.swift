@@ -11,20 +11,16 @@ import UIKit
 class MapCoordinator: BaseCoordinator<Void> {
     
     private let navigationController: UINavigationController
-    let apiClient: ApiClient
+    let vm = MapViewModel()
 
-    init(navigationController: UINavigationController, apiClient: ApiClient) {
+    init(navigationController: UINavigationController) {
         self.navigationController = navigationController
-        self.apiClient = apiClient
     }
     
     override func start() -> AnyPublisher<Void, Never> {
-        //TODO: Consider using dependency injection or a service locator to manage ViewModel instances, rather than directly creating them, to promote testability and flexibility.
-        let vm = MapViewModel(geoService: DefaultGeoLocationService(apiService: apiClient))
-    
         let vc = MapScreen(viewModel: vm)
         
-        vm.showSearch.receive(on: RunLoop.main)
+        vm.showSearch
             .flatMap { [weak self] location -> AnyPublisher<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto])?, Never> in
                 guard let self = self else {
                     return Just(nil).eraseToAnyPublisher()
@@ -32,8 +28,9 @@ class MapCoordinator: BaseCoordinator<Void> {
                 return self.goToSearchScreen(using: location, rootViewController: vc).eraseToAnyPublisher()
             }
             .compactMap { $0 }
-            .sink { result in
-                vm.showSearchBox.send(result)
+            .sink {[weak self] result in
+                guard let self = self else { return }
+                self.vm.showSearchBox.send(result)
             }
             .store(in: &cancellables)
         

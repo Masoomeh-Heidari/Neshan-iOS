@@ -14,17 +14,11 @@ class SplashCoordinator: BaseCoordinator<Void> {
         let vm = SplashViewModel()
         let vc = SplashScreen(viewModel: vm)
         
-        vm.goToTabbar
-            .sink(receiveCompletion: { result in
-                self.coordinate(to: TabbarCoordinator()).sink { _ in }.store(in: &self.cancellables)
-            }, receiveValue: { result in
-                self.coordinate(to: TabbarCoordinator()).sink { _ in }.store(in: &self.cancellables)
-            })
-            .store(in: &cancellables)
-
+        vm.goToTabbar.sink(receiveValue: { _ in
+            self.coordinate(to: TabbarCoordinator()).sink { _ in }.store(in: &self.cancellables)
+        }).store(in: &cancellables)
         
         vc.setRootViewController()
-        return Empty(completeImmediately: true)
-            .eraseToAnyPublisher() // Return a publisher that completes immediately
+        return Just<Void>(()).eraseToAnyPublisher()
     }
 }

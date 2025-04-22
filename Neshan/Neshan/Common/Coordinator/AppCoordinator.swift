@@ -1,10 +1,3 @@
-//
-//  AppCoordinator.swift
-//  WePod
-//
-//  Created by Amin Jalalian on 3/28/1402 AP.
-//
-
 import Combine
 
 class AppCoordinator: BaseCoordinator<Void> {

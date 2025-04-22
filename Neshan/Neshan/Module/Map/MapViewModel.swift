@@ -37,11 +37,18 @@ class MapViewModel: BaseViewModel {
     @Published var lastLocationSelected: CLLocationCoordinate2D? = nil
     
     let locationService: LocationService =  DefaultLocationService()
-    let geolocationService: GeoLocationService
+    var geolocationService: GeoLocationService!
     
-    init(geoService: GeoLocationService) {
-        self.geolocationService = geoService
+    lazy var apiClient: ApiClient = {
+        let client = DefaultAPIClient.init(baseURL: AppConfig.baseURL,
+                                           configuration: .default,
+                                           apiKey: AppConfig.apiKey)
+        return client
+    }()
+    
+    override init() {
         super.init()
+        self.geolocationService = DefaultGeoLocationService(apiService: self.apiClient)
     }
 
 
@@ -102,9 +109,7 @@ class MapViewModel: BaseViewModel {
                                                waypoints: nil)
               .map { response in
                 let routeViewModels = response.routes.compactMap { RouteViewModel(route: $0) }
-                
-//                let allCoordinates = routeViewModels.flatMap { $0.coordinates }
-                
+                                
                 return routeViewModels
             }
             .eraseToAnyPublisher()

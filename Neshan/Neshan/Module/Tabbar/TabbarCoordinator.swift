@@ -12,13 +12,6 @@ class TabbarCoordinator: BaseCoordinator<Void> {
     private let viewControllers: [UINavigationController]
     private let selectedIndex: Int
     
-    lazy var apiClient: ApiClient = {
-        let client = DefaultAPIClient.init(baseURL: AppConfig.baseURL,
-                                           configuration: .default,
-                                           apiKey: AppConfig.apiKey)
-        return client
-    }()
-
     deinit {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
@@ -47,22 +40,20 @@ class TabbarCoordinator: BaseCoordinator<Void> {
         viewController.viewControllers = viewControllers
         viewController.selectedIndex = self.selectedIndex
         
-        let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated()
-            .map { (offset, element) -> AnyPublisher<Void, Never> in
-                guard let items = TabbarItem(rawValue: offset) else { return Just(()).eraseToAnyPublisher() }
-                switch items {
-                case .other:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .business:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .experience:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .pin:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .map:
-                    return coordinate(to: MapCoordinator(navigationController: element, apiClient: apiClient))
-                }
-            }
+        let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated().compactMap { (offset, navController) in
+               guard let item = TabbarItem(rawValue: offset) else { return nil }
+               
+               let coordinator: BaseCoordinator<Void>
+               
+               switch item {
+               case .other, .business, .experience, .pin:
+                   coordinator = DemoCoordinator(navigationController: navController)
+               case .map:
+                   coordinator = MapCoordinator(navigationController: navController)
+               }
+               
+               return coordinate(to: coordinator)
+        }
         // Merge all the coordinate publishers and subscribe
         Publishers.MergeMany(coordinates)
             .sink { _ in }

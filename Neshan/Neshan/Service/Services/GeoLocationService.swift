@@ -36,21 +36,6 @@ final class DefaultGeoLocationService: GeoLocationService {
                                   method: .get,
                                   queryParameters: ["lat": coordinate.latitude, "lng": coordinate.longitude])
         
-//        return Future { [weak self] promise in
-//            do {
-//                try self?.apiService.request(endpoint: endpoint) { (result: Result<ReverseGeocodeToAddressResponse, APIError>) in
-//                    switch result {
-//                    case .success(let response):
-//                        promise(.success(response))
-//                    case .failure(let error):
-//                        promise(.failure(error))
-//                    }
-//                }
-//            } catch {
-//                promise(.failure(APIError.unknown))
-//            }
-//        }.eraseToAnyPublisher()
-        
            return Future<ReverseGeocodeToAddressResponse, APIError> { [weak self] promise in
                 guard let self else { return }
                 Task {

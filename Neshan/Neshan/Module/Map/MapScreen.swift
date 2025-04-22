@@ -11,10 +11,10 @@ import Combine
 
 class MapScreen: UIViewController {
     let viewModel: MapViewModel
+    
     private var cancellables = Set<AnyCancellable>()
 
     var mapView:NTMapView!
-//    var locationManager:CLLocationManager!
     var infoBox: DestinationInfosView!
     
     
@@ -61,10 +61,8 @@ class MapScreen: UIViewController {
         textField.isEnabled = false
         textField.attributedPlaceholder = NSAttributedString(
             string: "جستجو در نشان",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray,
-                         NSAttributedString.Key.font: Fonts.iranSansMobile(size: 13).font as Any]
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray]
         )
-        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -90,7 +88,6 @@ class MapScreen: UIViewController {
     deinit {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
-        print("ViewModel deallocated")
     }
     
     override func viewDidLoad() {
@@ -108,7 +105,7 @@ class MapScreen: UIViewController {
     }
     
     fileprivate func binding() {
-        self.viewModel.showSearchBox.receive(on: RunLoop.main)
+        self.viewModel.showSearchBox
             .sink(receiveValue: { [weak self] items in
                 
             guard let self else { return }
@@ -133,7 +130,7 @@ class MapScreen: UIViewController {
             mapView?.setZoom(16, durationSeconds: 0.4)
         }).store(in: &cancellables)
         
-        viewModel.locationMarkersUpdated.receive(on: RunLoop.main)
+        viewModel.locationMarkersUpdated
             .sink { [weak self] infos in
                 guard let self else { return }
 
@@ -154,15 +151,6 @@ class MapScreen: UIViewController {
             self.fetchAddressAndUpdateInfoBox(for: location)
             self.showBottomView()
         }
-        
-        self.viewModel.userLocationPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] location in
-                self?.lat = location.latitude
-                self?.lng = location.longitude
-                self?.updateMapWithLocation(location)
-            }
-            .store(in: &cancellables)
     }
     
     fileprivate func initMap() {
@@ -201,8 +189,8 @@ class MapScreen: UIViewController {
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             
         ])
-        self.goToCurrentLocation()
         setupBottomView()
+        self.getCurrentLocation()
     }
     
     //MARK: - ViewSetup
@@ -251,6 +239,7 @@ class MapScreen: UIViewController {
     
     @objc func goToSearch() {
         self.viewModel.showSearch.send((x: self.lat, y: self.lng))
+        self.viewModel.showSearch.send(completion: .finished)
     }
     
     func setupInfoBox() {
@@ -291,7 +280,7 @@ class MapScreen: UIViewController {
     }
     
     func fetchAddressAndUpdateInfoBox(for location: CLLocationCoordinate2D) {
-        self.viewModel.getAddress(at: location).receive(on: RunLoop.main)
+        self.viewModel.getAddress(at: location)
             .sink { _ in
                 print("sink getAddress")
             } receiveValue: { [weak self] address in
@@ -303,7 +292,7 @@ class MapScreen: UIViewController {
     
     
         
-        self.viewModel.getDirectionToDestination(at: location).receive(on: RunLoop.main)
+        self.viewModel.getDirectionToDestination(at: location)
             .sink { _ in
                 print("sink getDirectionToDestination")
             } receiveValue: { [weak self] result in
@@ -328,7 +317,7 @@ class MapScreen: UIViewController {
         addMarkerToMap(location: coordinate,
                        icon: UIImage(resource: .currentLocation),
                        id: "userCurrentLocation")
-//        self.viewModel.currentUserLocation = coordinate
+        self.viewModel.currentUserLocation = coordinate
     }
     
     func addMarkerToMap(location: CLLocationCoordinate2D, icon: UIImage, id: String) {
@@ -465,6 +454,14 @@ class MapScreen: UIViewController {
     func getCurrentLocation() {
         self.markerLayer?.clear()
         self.viewModel.getMyCurrentLocation()
+            .sink { _ in
+                print("sink getCurrentLocation")
+            } receiveValue: { [weak self] location in
+                guard let self else { return }
+                self.lat = location.longitude
+                self.lng = location.latitude
+                self.updateMapWithLocation(location)
+            } .store(in: &cancellables)
     }
     
     fileprivate func setUserCurrentLocation(using loc: (x: Double, y: Double)) {
