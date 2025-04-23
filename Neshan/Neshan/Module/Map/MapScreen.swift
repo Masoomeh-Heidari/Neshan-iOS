@@ -24,13 +24,13 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     private var recordingSession : AVAudioSession!
     
     private var silenceThreshold: Float = -20.0
-    private var silenceTimer: Timer?
     private var silenceDuration: TimeInterval = 0.5
     
     private var isRecording: Bool = false
     private var isPlaying: Bool = false
     
     var timer: Timer?
+    var silenceTimer: Timer?
     var elapsedTime: TimeInterval = 0
     
     var lat: Double = 51.33855846247923
@@ -207,6 +207,12 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
             .store(in: &cancellables)
         
         //record binding
+        
+        sheet.recordTappedPublisher.sink { [weak self] in
+            guard let self else { return }
+            self.recordAudio()
+        }.store(in: &cancellables)
+        
         sheet.playTappedPublisher.sink { [weak self] in
             guard let self else { return }
             self.playAudio()
@@ -379,29 +385,6 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         addMarkerToMap(location: coordinate,
                        icon: UIImage(resource: .currentLocation),
                        id: "userCurrentLocation")
-    }
-    
-    
-    func uploadAudioFile() {
-        let helper = AudioUploadHelper()
-        helper.uploadFile(using: self.getAudioURL(), to: "process") {[weak self] counter in
-            guard let self else { return }
-            let hours = Int(counter / 3600)
-            let minutes = Int((counter.truncatingRemainder(dividingBy: 3600)) / 60)
-            let seconds = Int(counter.truncatingRemainder(dividingBy: 60))
-            
-            let time = String(format: "%02d:%02d", minutes, seconds)
-            sheet.updateTimerLabel(with: time)
-        } completion: {[weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let term):
-                guard let term else { return }
-                sheet.updateTimerLabel(with: term)
-            case .failure(let error):
-                print("Upload failed: \(error)")
-            }
-        }
     }
     
     func addMarkerToMap(location: CLLocationCoordinate2D, icon: UIImage, id: String) {
@@ -580,6 +563,28 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         showAudioBottomSheet()
     }
     
+    func uploadAudioFile() {
+        let helper = AudioUploadHelper()
+        helper.uploadFile(using: self.getAudioURL(), to: "process") {[weak self] counter in
+            guard let self else { return }
+            let hours = Int(counter / 3600)
+            let minutes = Int((counter.truncatingRemainder(dividingBy: 3600)) / 60)
+            let seconds = Int(counter.truncatingRemainder(dividingBy: 60))
+            
+            let time = String(format: "%02d:%02d", minutes, seconds)
+            sheet.updateTimerLabel(with: time)
+        } completion: {[weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let term):
+                guard let term else { return }
+                sheet.updateTimerLabel(with: term)
+            case .failure(let error):
+                print("Upload failed: \(error)")
+            }
+        }
+    }
+    
     func setupRecorder() {
         let session = AVAudioSession.sharedInstance()
         session.requestRecordPermission { [weak self] allowed in
@@ -634,7 +639,23 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         if let sheetController = sheet.sheetPresentationController {
             sheetController.detents = [.medium()]
         }
-
+        present(sheet, animated: true)
+    }
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        print("Finished recording: \(flag)")
+        if isSilenceDetected() {
+            print("Silence detected")
+            return
+        } else {
+            self.uploadAudioFile()
+        }
+    }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        isPlaying = false
+    }
+    
+    func recordAudio() {
         configureRecorder()
         audioRecorder?.record()
         isRecording = true
@@ -642,21 +663,13 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         startTimer { [weak sheet] time in
             sheet?.updateTimerLabel(with: time)
         }
-        
-        present(sheet, animated: true)
-    }
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        print("Finished recording: \(flag)")
     }
     
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        isPlaying = false
-    }
-    
-    @objc func stopRecording() {
+    func stopRecording() {
         audioRecorder?.stop()
         isRecording = false
-        silenceTimer?.invalidate()
+        self.stopTimer()
+        stopSilenceDetection()
     }
     
     func playAudio() {
@@ -681,25 +694,30 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         return getDocumentsDirectory().appendingPathComponent("audioFile.wav")
     }
     
+    private var silenceDetectionInProgress = false
+
+    private func stopSilenceDetection() {
+        silenceDetectionInProgress = false
+        silenceTimer?.invalidate()
+    }
+    
     private func startSilenceDetection() {
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { timer in
+
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {[weak self] timer in
+            guard let self = self else { return }
             self.updateMeters()
-            
             if self.isSilenceDetected() {
-                print("No voice detected")
-//                self.stopRecording()
-//                if self.silenceTimer == nil {
-                    // Start a timer to stop recording after silence duration is met
-//                    self.silenceTimer = Timer.scheduledTimer(timeInterval: self.silenceDuration, target: self, selector: #selector(self.stopRecording), userInfo: nil, repeats: false)
-//                }
+                self.stopRecording()
+                sheet.updateTimerLabel(with: "صدایی ازت نشنیدم=p!")
+                timer.invalidate()
+                
             } else {
-                print("Still has voice that has been detected")
-                // Reset the silence timer if sound is detected
-//                self.silenceTimer?.invalidate()
-//                self.silenceTimer = nil
+                print("==========Still has voice that has been detected")
             }
+
         }
     }
+    
     
     private func updateMeters() {
         guard let recorder = audioRecorder else { return }
