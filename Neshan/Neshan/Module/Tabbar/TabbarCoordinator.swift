@@ -2,12 +2,18 @@ import Foundation
 import Combine
 import UIKit
 
+struct AppConfig {
+    static let baseURL = URL(string: "https://api.neshan.org/v5/")!
+    static let apiKey = "service.39681e0622cc4184a1141787b0508dbb"
+}
+
 class TabbarCoordinator: BaseCoordinator<Void> {
     
     private let viewControllers: [UINavigationController]
     private let selectedIndex: Int
     
     deinit {
+        cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
     }
     
@@ -19,6 +25,10 @@ class TabbarCoordinator: BaseCoordinator<Void> {
                 navigation.tabBarItem.image = items.icon
                 navigation.tabBarItem.selectedImage = items.selectedImage
                 navigation.tabBarItem.title = items.title
+                let attributes = [NSAttributedString.Key.font:Fonts.iranSansMobile(size: 11).font]
+                navigation.tabBarItem.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
+                navigation.tabBarItem.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .selected)
+
                 return navigation
             })
     }
@@ -29,39 +39,21 @@ class TabbarCoordinator: BaseCoordinator<Void> {
         viewController.tabBar.isTranslucent = false
         viewController.viewControllers = viewControllers
         viewController.selectedIndex = self.selectedIndex
-//        let coordinates = viewControllers.enumerated()
-//            .map { (offset, element) -> Observable<Void> in
-//                guard let items = TabbarItem(rawValue: offset) else { return Observable.just(() )}
-//                switch items {
-//                case .other:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .business:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .experience:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .pin:
-//                    return coordinate(to: DemoCoordinator(navigationController: element))
-//                case .map:
-//                    return coordinate(to: MapCoordinator(navigationController: element))
-//                }
-//            }
         
-        let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated()
-            .map { (offset, element) -> AnyPublisher<Void, Never> in
-                guard let items = TabbarItem(rawValue: offset) else { return Just(()).eraseToAnyPublisher() }
-                switch items {
-                case .other:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .business:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .experience:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .pin:
-                    return coordinate(to: DemoCoordinator(navigationController: element))
-                case .map:
-                    return coordinate(to: MapCoordinator(navigationController: element))
-                }
-            }
+        let coordinates: [AnyPublisher<Void, Never>] = viewControllers.enumerated().compactMap { (offset, navController) in
+               guard let item = TabbarItem(rawValue: offset) else { return nil }
+               
+               let coordinator: BaseCoordinator<Void>
+               
+               switch item {
+               case .other, .business, .experience, .pin:
+                   coordinator = DemoCoordinator(navigationController: navController)
+               case .map:
+                   coordinator = MapCoordinator(navigationController: navController)
+               }
+               
+               return coordinate(to: coordinator)
+        }
         // Merge all the coordinate publishers and subscribe
         Publishers.MergeMany(coordinates)
             .sink { _ in }

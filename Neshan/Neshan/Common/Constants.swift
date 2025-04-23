@@ -7,6 +7,7 @@
 
 import Foundation
 
+//TODO: Consider using this Constant for use to promote consistency in the code and reduce repetition.
 enum Constant {
     
     static let offset = 0

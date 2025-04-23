@@ -8,14 +8,30 @@
 import UIKit
 import CoreLocation
 import Combine
+import AVFoundation
 
-class MapScreen: UIViewController {
+class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
+    
     let viewModel: MapViewModel
-
     private var cancellables = Set<AnyCancellable>()
-
-    var mapview:NTMapView?
-    var locationManager:CLLocationManager!
+    
+    var mapView:NTMapView!
+    var infoBox: DestinationInfosView!
+    
+    // Audio vars
+    private var audioRecorder : AVAudioRecorder!
+    private var audioPlayer : AVAudioPlayer!
+    private var recordingSession : AVAudioSession!
+    
+    private var silenceThreshold: Float = -20.0
+    private var silenceTimer: Timer?
+    private var silenceDuration: TimeInterval = 0.5
+    
+    private var isRecording: Bool = false
+    private var isPlaying: Bool = false
+    
+    var timer: Timer?
+    var elapsedTime: TimeInterval = 0
     
     var lat: Double = 51.33855846247923
     var lng: Double = 35.69992585886045
@@ -27,10 +43,79 @@ class MapScreen: UIViewController {
     let userLocationLayer = NTNeshanServices.createVectorElementLayer()
     
     var searchTerm: String = ""
+    
+    var markerLayer: NTVectorElementLayer?
+    var routeLayers: NTVectorElementLayer?
+    var marker = NTMarker()
+    var mapEventListener: MapEventListener!
+    
+    var location: CLLocationCoordinate2D?
+    var routes: [RouteViewModel] = []
+    var duration: String = ""
+    var labelLayer: NTVectorElementLayer?
+    let sheet = AudioBottomSheet()
 
-    let currenLocalButton = UIButton()
-    let searchViewContainer = UIView()
-
+    //MARK: - Lazy Vars
+    
+    lazy var currenLocalButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "current_target"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var recordButton : UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "microphone"), for: .normal)
+        
+        button.tintColor = Colors.pageControllerColor
+        button.backgroundColor = Colors.backgroundColor
+        button.layer.cornerRadius = 10
+        button.addTarget(self, action: #selector(recordButtonTapped), for: .touchUpInside)
+        button.isUserInteractionEnabled = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 50),
+            button.heightAnchor.constraint(equalToConstant: 50),
+        ])
+        return button
+    }()
+    
+    lazy var searchButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("جستجو در نشان  ", for: .normal)
+        button.setTitleColor(.darkGray, for: .normal)
+        button.titleLabel?.font = Fonts.iranSansMobile(size: 13).font
+        button.contentHorizontalAlignment = .right
+        button.semanticContentAttribute = .forceRightToLeft
+        button.backgroundColor = Colors.backgroundColor
+        button.addTarget(self, action: #selector(goToSearch), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var searchFieldContainer: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [recordButton, searchButton])
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.alignment = .fill
+        stack.distribution = .fill
+        stack.backgroundColor = Colors.backgroundColor
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    lazy var searchContainerView : UIView = {
+        let view = UIView()
+        view.backgroundColor = Colors.backgroundColor
+        view.layer.cornerRadius = 8
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.lightGray.cgColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    //MARK: - init
     
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
@@ -41,157 +126,378 @@ class MapScreen: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        self.viewModel.hideExplore.send(())
+    deinit {
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+        print("ViewModel deallocated")
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
+    //MARK: - LifeCycle Methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.initMap()
-//        self.setUserCurrentLocation(using: (x: self.azadiLat, y: self.azadiLng))
-        self.initUserLocation()
-        self.binding()
-        self.setupUI()
+        initMap()
+        binding()
+        setupRecorder()
+        setupInfoBox()
     }
     
-    fileprivate func setupUI() {
-       
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
     }
     
+    //MARK: - Binging
     fileprivate func binding() {
-        self.viewModel.showSearchBox
-            .receive(on: RunLoop.main)
-            .sink { [weak self] items in
-                guard let self = self else { return }
-                self.currenLocalButton.isHidden = false
-                self.searchViewContainer.isHidden = false
+        self.viewModel.showSearchBox.receive(on: RunLoop.main)
+            .sink(receiveValue: { [weak self] items in
+                
+                guard let self else { return }
+                
                 self.searchLayer?.clear()
+                self.markerLayer?.clear()
                 self.searchTerm = items.term
-
+                
                 let resultMarkers = self.getMarkers(by: items.result)
                 for item in resultMarkers {
-                    self.searchLayer?.add(item)
+                    searchLayer?.add(item)
                 }
-
-                if let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first {
-                    self.searchLayer?.add(selectedItemMarker)
-
-                    self.mapview?.setFocalPointPosition(
-                        NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y),
-                        durationSeconds: 0.4
-                    )
-                    self.mapview?.setZoom(16, durationSeconds: 0.4)
+                
+                let selectedItemMarker = self.getMarkers(by:[items.selectedItem], hasAnimated: true).first!
+                searchLayer?.add(selectedItemMarker)
+                
+                self.fetchAddressAndUpdateInfoBox(for: items.selectedItem.location.toCLLocationCoordinate2D)
+                self.showBottomView()
+                
+                
+                mapView?.setFocalPointPosition(NTLngLat(x: items.selectedItem.location.x, y: items.selectedItem.location.y), durationSeconds: 0.4)
+                mapView?.setZoom(16, durationSeconds: 0.4)
+            }).store(in: &cancellables)
+        
+        viewModel.locationMarkersUpdated.receive(on: RunLoop.main)
+            .sink { [weak self] infos in
+                guard let self else { return }
+                
+                self.markerLayer?.clear()
+                for info in infos {
+                    self.addMarkerToMap(location: info.coordinate,
+                                        icon: info.icon,
+                                        id: info.id)
                 }
             }
             .store(in: &cancellables)
-
-        self.viewModel.userLocation
-            .receive(on: RunLoop.main)
-            .sink { [weak self] loc in
-                guard let self = self else { return }
-                self.userLocationLayer?.clear()
-                self.setUserCurrentLocation(using: loc)
+        
+        mapEventListener.onMapTap = { [weak self] location in
+            guard let self else { return }
+            self.viewModel.onMapTap(at: location)
+            self.lat = location.longitude
+            self.lng = location.latitude
+            self.fetchAddressAndUpdateInfoBox(for: location)
+            self.showBottomView()
+        }
+        
+        self.viewModel.userLocationPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] location in
+                self?.lat = location.latitude
+                self?.lng = location.longitude
+                self?.updateMapWithLocation(location)
             }
             .store(in: &cancellables)
-    }
-
-    fileprivate func initUserLocation() {
-        locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.allowsBackgroundLocationUpdates = true
-        locationManager.activityType = .other
-        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-        self.checkLocationAuthorization(using: self.locationManager)
+        
+        //record binding
+        sheet.playTappedPublisher.sink { [weak self] in
+            guard let self else { return }
+            self.playAudio()
+        } .store(in: &cancellables)
+        
+        sheet.stopTappedPublisher.sink { [weak self] in
+            guard let self else { return }
+            self.stopRecording()
+            self.stopTimer()
+        } .store(in: &cancellables)
+        
+        sheet.uploadTappedPublisher.sink {[weak self] _ in
+            guard let self else { return }
+            self.uploadAudioFile()
+        }.store(in: &cancellables)
     }
     
     fileprivate func initMap() {
-        mapview = NTMapView();
+        mapView = NTMapView(frame: .zero)
+        view.addSubview(mapView)
+        
         let neshan = NTNeshanServices.createBaseMap(NTNeshanMapStyle.NESHAN)
-        mapview?.getLayers().add(neshan)
+        mapView?.getLayers().add(neshan)
         
         let neshan2 = NTNeshanServices.createTrafficLayer()
-        mapview?.getLayers().add(neshan2)
+        mapView?.getLayers().add(neshan2)
         
         let neshan3 = NTNeshanServices.createPOILayer(false)
-        mapview?.getLayers().add(neshan3)
+        mapView?.getLayers().add(neshan3)
         
-        mapview?.setFocalPointPosition(NTLngLat(x: self.lat, y: self.lng), durationSeconds: 0.4)
-        mapview?.setZoom(13, durationSeconds: 0.4)
+        markerLayer = NTNeshanServices.createVectorElementLayer()
+        mapView?.getLayers().add(markerLayer)
         
-        mapview?.getLayers().add(userLocationLayer)
-        mapview?.getLayers().add(searchLayer)
-
-        view = mapview
+        mapView?.setFocalPointPosition(NTLngLat(x: self.lat, y: self.lng), durationSeconds: 0.4)
+        mapView?.setZoom(13, durationSeconds: 0.4)
+        
+        routeLayers = NTNeshanServices.createVectorElementLayer()
+        mapView?.getLayers().add(routeLayers)
+        
+        mapEventListener = MapEventListener()
+        mapView?.setMapEventListener(mapEventListener)
+        
+        mapView?.getLayers().add(userLocationLayer)
+        mapView?.getLayers().add(searchLayer)
+        
+        mapView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            mapView.topAnchor.constraint(equalTo: view.topAnchor),
+            mapView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            mapView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            
+        ])
+        self.goToCurrentLocation()
         setupBottomView()
     }
     
+    //MARK: - Setup View
     func setupBottomView() {
-        searchViewContainer.backgroundColor = .white
-        searchViewContainer.translatesAutoresizingMaskIntoConstraints = false
-        searchViewContainer.isUserInteractionEnabled = true
-        searchViewContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSearch)))
-        self.mapview?.addSubview(searchViewContainer)
+        configureSearchView()
+        setUpCurrentLocationButton()
+    }
+    
+    
+    private func configureSearchView() {
+        mapView.addSubview(searchContainerView)
+        searchContainerView.addSubview(searchFieldContainer)
         NSLayoutConstraint.activate([
-            searchViewContainer.trailingAnchor.constraint(equalTo: mapview!.trailingAnchor, constant: 0),
-            searchViewContainer.leadingAnchor.constraint(equalTo: mapview!.leadingAnchor, constant: 0),
-            searchViewContainer.bottomAnchor.constraint(equalTo: mapview!.bottomAnchor, constant: -8),
-            searchViewContainer.heightAnchor.constraint(equalToConstant: 60)
-        ])
-        
-        currenLocalButton.setImage(UIImage(named: "current_target"), for: .normal)
-        currenLocalButton.translatesAutoresizingMaskIntoConstraints = false
-        mapview?.addSubview(currenLocalButton)
-        currenLocalButton.addTarget(self, action: #selector(goToCurrentLocation), for: .touchUpInside)
-        NSLayoutConstraint.activate([
-            currenLocalButton.trailingAnchor.constraint(equalTo: mapview!.trailingAnchor,constant: -16),
-            currenLocalButton.bottomAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: -16),
-            currenLocalButton.widthAnchor.constraint(equalToConstant: 30),
-            currenLocalButton.heightAnchor.constraint(equalToConstant: 30)
-        ])
-        
-        let textField = UITextField()
-        textField.borderStyle = .none
-        textField.backgroundColor = UIColor(white: 6.0, alpha: 8.0)
-        textField.semanticContentAttribute = .forceRightToLeft
-        textField.layer.cornerRadius = 8
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor.lightGray.cgColor
-        textField.textAlignment = .right
-        textField.placeholder = "جستجو"
-        textField.isEnabled = false
-     
-        self.searchViewContainer.addSubview(textField)
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            textField.trailingAnchor.constraint(equalTo: searchViewContainer.trailingAnchor,constant: -8),
-            textField.leadingAnchor.constraint(equalTo: searchViewContainer.leadingAnchor,constant: 8),
-            textField.bottomAnchor.constraint(equalTo: searchViewContainer.bottomAnchor, constant: -8),
-            textField.topAnchor.constraint(equalTo: searchViewContainer.topAnchor, constant: 8)
+            searchContainerView.leadingAnchor.constraint(equalTo: mapView.leadingAnchor, constant: 8),
+            searchContainerView.trailingAnchor.constraint(equalTo: mapView.trailingAnchor, constant: -8),
+            searchContainerView.bottomAnchor.constraint(equalTo: mapView!.bottomAnchor, constant: -8),
+            searchContainerView.heightAnchor.constraint(equalToConstant: 40),
+            
+            searchFieldContainer.leadingAnchor.constraint(equalTo: searchContainerView.leadingAnchor, constant: 16),
+            searchFieldContainer.trailingAnchor.constraint(equalTo: searchContainerView.trailingAnchor, constant: -16),
+            searchFieldContainer.bottomAnchor.constraint(equalTo: searchContainerView.bottomAnchor, constant: -8),
+            searchFieldContainer.topAnchor.constraint(equalTo: searchContainerView.topAnchor, constant: 8),
             
         ])
     }
     
-    @objc func goToSearch() {
-        self.currenLocalButton.isHidden = true
-        self.searchViewContainer.isHidden = true
-        let userLocation = self.locationManager.location
-        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
-        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
-        self.viewModel.showSearch.send(completion: .finished)
-
+    private func setUpCurrentLocationButton() {
+        
+        currenLocalButton.translatesAutoresizingMaskIntoConstraints = false
+        mapView?.addSubview(currenLocalButton)
+        NSLayoutConstraint.activate([
+            currenLocalButton.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor, constant: -16),
+            currenLocalButton.bottomAnchor.constraint(equalTo: searchContainerView.topAnchor, constant: -16),
+            currenLocalButton.widthAnchor.constraint(equalToConstant: 30),
+            currenLocalButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
     }
+
+    @objc func goToSearch() {
+        self.viewModel.showSearch.send((x: self.lat, y: self.lng))
+    }
+    
+    func setupInfoBox() {
+        infoBox = DestinationInfosView()
+        infoBox.translatesAutoresizingMaskIntoConstraints = false
+        infoBox.dismissAction = { [weak self] in
+            guard let self else { return }
+            
+            self.hideBottomView()
+        }
+        infoBox.onMakeRouteTap = { [weak self] in
+            guard let self else { return }
+            
+            self.showRoutesOnMap()
+        }
+        self.view.addSubview(infoBox)
+        
+        infoBox.alpha = 0.0
+        infoBox.isHidden = true
+        
+        NSLayoutConstraint.activate([
+            infoBox.leftAnchor.constraint(equalTo: mapView.leftAnchor),
+            infoBox.rightAnchor.constraint(equalTo: mapView.rightAnchor),
+            infoBox.bottomAnchor.constraint(equalTo: mapView.bottomAnchor),
+            infoBox.heightAnchor.constraint(equalTo: mapView.heightAnchor, multiplier: 1/3),
+        ])
+    }
+    
+    func showRoutesOnMap() {
+        guard !routes.isEmpty else {
+            print("No routes available to show.")
+            return
+        }
+        
+        for route in routes {
+            drawPolylineOnMap(coordinates: route.coordinates, color: route.color)
+        }
+    }
+    
+    func fetchAddressAndUpdateInfoBox(for location: CLLocationCoordinate2D) {
+        self.viewModel.getAddress(at: location).receive(on: RunLoop.main)
+            .sink { _ in
+                print("sink getAddress")
+            } receiveValue: { [weak self] address in
+                guard let self else { return }
+                self.location = location
+                self.infoBox.setDestinationName(address.routeName)
+                self.infoBox.setDestinationFullAddress(address.formattedAddress)
+            }.store(in: &cancellables)
+        
+        
+        
+        self.viewModel.getDirectionToDestination(at: location).receive(on: RunLoop.main)
+            .sink { _ in
+                print("sink getDirectionToDestination")
+            } receiveValue: { [weak self] result in
+                guard let self else { return }
+                
+                self.routeLayers?.clear()
+                self.routes = result
+                for route in result {
+                    let duration = route.route.legs?.first?.duration.text
+                    self.duration = duration ?? ""
+                    let distance = route.route.legs?.first?.distance.text
+                    self.infoBox.setDuration(duration: duration, distance: distance)
+                }
+            } .store(in: &cancellables)
+        
+    }
+    
+    func updateMapWithLocation(_ coordinate: CLLocationCoordinate2D) {
+        let lngLat = NTLngLat(x: coordinate.longitude, y: coordinate.latitude)
+        mapView?.setFocalPointPosition(lngLat, durationSeconds: 0.4)
+        mapView?.setZoom(17, durationSeconds: 0.4)
+        addMarkerToMap(location: coordinate,
+                       icon: UIImage(resource: .currentLocation),
+                       id: "userCurrentLocation")
+    }
+    
+    
+    func uploadAudioFile() {
+        let helper = AudioUploadHelper()
+        helper.uploadFile(using: self.getAudioURL(), to: "process") {[weak self] counter in
+            guard let self else { return }
+            let hours = Int(counter / 3600)
+            let minutes = Int((counter.truncatingRemainder(dividingBy: 3600)) / 60)
+            let seconds = Int(counter.truncatingRemainder(dividingBy: 60))
+            
+            let time = String(format: "%02d:%02d", minutes, seconds)
+            sheet.updateTimerLabel(with: time)
+        } completion: {[weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let term):
+                guard let term else { return }
+                sheet.updateTimerLabel(with: term)
+            case .failure(let error):
+                print("Upload failed: \(error)")
+            }
+        }
+    }
+    
+    func addMarkerToMap(location: CLLocationCoordinate2D, icon: UIImage, id: String) {
+        
+        let animationStyleBuilder = NTAnimationStyleBuilder()
+        animationStyleBuilder?.setFade(.ANIMATION_TYPE_SMOOTHSTEP)
+        animationStyleBuilder?.setSizeAnimationType(.ANIMATION_TYPE_SPRING)
+        animationStyleBuilder?.setPhaseInDuration(0.5)
+        animationStyleBuilder?.setPhaseOutDuration(0.5)
+        let animSt = animationStyleBuilder?.buildStyle()
+        
+        let markStCr = NTMarkerStyleCreator()
+        markStCr?.setSize(50)
+        
+        let bitmap = NTBitmapUtils.createBitmap(from: icon)
+        markStCr?.setBitmap(bitmap)
+        
+        markStCr?.setAnimationStyle(animSt)
+        let markSt = markStCr?.buildStyle()
+        
+        let lngLatMarker = NTLngLat(x: location.longitude, y: location.latitude)
+        let marker = NTMarker(pos: lngLatMarker, style: markSt)
+        let metadata = NTVariant(string: id)
+        marker?.setMetaData("id", element: metadata)
+        
+        markerLayer?.add(marker)
+        
+    }
+    
+    func drawPolylineOnMap(coordinates: [CLLocationCoordinate2D], color: UIColor) {
+        labelLayer?.clear()
+        
+        if labelLayer == nil {
+            labelLayer = NTNeshanServices.createVectorElementLayer()
+            mapView?.getLayers().add(labelLayer!)
+        }
+        
+        let lngLatVector = NTLngLatVector()
+        for coordinate in coordinates {
+            let lngLat = NTLngLat(x: coordinate.longitude, y: coordinate.latitude)
+            lngLatVector?.add(lngLat)
+        }
+        
+        let lineGeom = NTLineGeom(poses: lngLatVector)
+        
+        let line = NTLine(geometry: lineGeom, style: getLineStyle(color: color))
+        
+        routeLayers?.add(line)
+        
+        
+        if let firstCoordinate = coordinates.first {
+            mapView?.setFocalPointPosition(NTLngLat(x: firstCoordinate.longitude, y: firstCoordinate.latitude), durationSeconds: 0.25)
+            mapView?.setZoom(17, durationSeconds: 0)
+            addRouteLabel(at: firstCoordinate, duration: self.duration)
+            
+        }
+        
+    }
+    
+    func getLineStyle(color: UIColor) -> NTLineStyle? {
+        if let lineStCr = NTLineStyleCreator()  {
+            let rgb = color.getRGBValues()
+            lineStCr.setColor(NTARGB(r: rgb.red , g: rgb.green, b: rgb.blue, a: 190))
+            lineStCr.setWidth(8)
+            lineStCr.setStretchFactor(1)
+            
+            return lineStCr.buildStyle()
+        } else {
+            print("Failed to initialize NTLineStyleCreator")
+            return nil
+        }
+    }
+    
+    func addRouteLabel(at coordinate: CLLocationCoordinate2D, duration: String) {
+        let labelStyleCreator = NTLabelStyleCreator()
+        labelStyleCreator?.setFontSize(15)
+        labelStyleCreator?.setBackgroundColor(NTARGB(r: 167, g: 172, b: 184, a: 255))
+        labelStyleCreator?.setBorderColor(NTARGB(r: 0, g: 0, b: 0, a: 255))
+        labelStyleCreator?.setBorderWidth(5)
+        labelStyleCreator?.setTextMargins(.init(left: 3, top: 3, right: 3, bottom: 3))
+        
+        let labelStyle = labelStyleCreator?.buildStyle()
+        
+        let label = NTLabel(
+            pos: NTLngLat(x: coordinate.longitude, y: coordinate.latitude),
+            style: labelStyle,
+            text: duration
+        )
+        
+        labelLayer?.add(label)
+    }
+    
     
     fileprivate func getMarkers(by items: [SearchItemDto], hasAnimated: Bool = false) -> [NTMarker] {
         let builder = NTMarkerStyleCreator()
-
+        
         if hasAnimated {
             var animSt = NTAnimationStyle()
             
@@ -226,53 +532,191 @@ class MapScreen: UIViewController {
     }
     
     @objc func goToCurrentLocation() {
-        let userLocation = self.locationManager.location
-        self.lat = userLocation?.coordinate.longitude ?? self.azadiLat
-        self.lng = userLocation?.coordinate.latitude ?? self.azadiLng
-        self.setUserCurrentLocation(using: (x: self.lat, y: self.lng))
+        getCurrentLocation()
+    }
+    
+    func getCurrentLocation() {
+        self.markerLayer?.clear()
+        self.viewModel.getMyCurrentLocation()
     }
     
     fileprivate func setUserCurrentLocation(using loc: (x: Double, y: Double)) {
         let builder = NTMarkerStyleCreator()
-
+        
         let pin = UIImage(named: "current_location")
         let bitmap = NTBitmapUtils.createBitmap(from: pin!)
         builder?.setBitmap(bitmap)
         builder?.setSize(21)
         let style = (builder?.buildStyle())!
-
+        
         let marker = NTMarker(pos: NTLngLat(x: loc.x, y: loc.y), style: style)
         userLocationLayer?.add(marker)
         
-        mapview?.setFocalPointPosition(NTLngLat(x: loc.x, y: loc.y), durationSeconds: 0.4)
-        mapview?.setZoom(16, durationSeconds: 0.4)
-    }
-}
-
-extension MapScreen: CLLocationManagerDelegate {
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        self.checkLocationAuthorization(using: manager)
+        mapView?.setFocalPointPosition(NTLngLat(x: loc.x, y: loc.y), durationSeconds: 0.4)
+        mapView?.setZoom(16, durationSeconds: 0.4)
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let userLocation :CLLocation = locations[0] as CLLocation
-        
-        self.lat = userLocation.coordinate.longitude
-        self.lng = userLocation.coordinate.latitude
-        
-        self.viewModel.userLocation.send((x: userLocation.coordinate.longitude, y: userLocation.coordinate.latitude))
-    }
-    
-    fileprivate func checkLocationAuthorization(using manager: CLLocationManager) {
-        switch manager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-                locationManager.startUpdatingLocation()
-                break
-            case .denied, .notDetermined, .restricted:
-                self.setUserCurrentLocation(using: (x: self.azadiLat, y: self.azadiLng))
-        @unknown default:
-            break
+    func showBottomView() {
+        DispatchQueue.main.async {
+            self.infoBox.isHidden = false
+            UIView.animate(withDuration: 0.1) {
+                self.infoBox.alpha = 1.0
+            }
         }
+    }
+    
+    func hideBottomView() {
+        routeLayers?.clear()
+        searchLayer?.clear()
+        UIView.animate(withDuration: 0.1, animations: {
+            self.infoBox.alpha = 0.0
+        }) { _ in
+            self.infoBox.isHidden = true
+        }
+    }
+    //MARK: - Recording Methods
+    
+    @objc func recordButtonTapped() {
+        showAudioBottomSheet()
+    }
+    
+    func setupRecorder() {
+        let session = AVAudioSession.sharedInstance()
+        session.requestRecordPermission { [weak self] allowed in
+            DispatchQueue.main.async {
+                if allowed {
+                    try? session.setCategory(.playAndRecord, mode: .default, options: .defaultToSpeaker)
+                    try? session.setActive(true)
+                } else {
+                    print("Microphone permission denied")
+                }
+            }
+        }
+    }
+    
+    func configureRecorder() {
+        let url = self.getAudioURL()
+        let settings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatLinearPCM,
+            AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue,
+            AVEncoderBitRateKey: 44100,
+            AVNumberOfChannelsKey: 1
+        ]
+        
+        do {
+            audioRecorder = try AVAudioRecorder(url: url, settings: settings)
+            audioRecorder.delegate = self
+            audioRecorder.isMeteringEnabled = true
+            audioRecorder.prepareToRecord()
+        } catch {
+            print("Failed to initialize recorder: \(error.localizedDescription)")
+        }
+    }
+    
+    func startTimer(update: @escaping (String) -> Void) {
+        elapsedTime = 0
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            self.elapsedTime += 1
+            let min = Int(self.elapsedTime) / 60
+            let sec = Int(self.elapsedTime) % 60
+            update(String(format: "%02d:%02d", min, sec))
+        }
+    }
+    
+    func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    func showAudioBottomSheet() {
+        sheet.modalPresentationStyle = .pageSheet
+        if let sheetController = sheet.sheetPresentationController {
+            sheetController.detents = [.medium()]
+        }
+
+        configureRecorder()
+        audioRecorder?.record()
+        isRecording = true
+        startSilenceDetection()
+        startTimer { [weak sheet] time in
+            sheet?.updateTimerLabel(with: time)
+        }
+        
+        present(sheet, animated: true)
+    }
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        print("Finished recording: \(flag)")
+    }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        isPlaying = false
+    }
+    
+    @objc func stopRecording() {
+        audioRecorder?.stop()
+        isRecording = false
+        silenceTimer?.invalidate()
+    }
+    
+    func playAudio() {
+        let url = self.getAudioURL()
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer.delegate = self
+            audioPlayer.play()
+            isPlaying = true
+        } catch {
+            print("Playback failed: \(error.localizedDescription)")
+        }
+    }
+    
+    private func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentsDirectory = paths[0]
+        return documentsDirectory
+    }
+    
+    private func getAudioURL() -> URL {
+        return getDocumentsDirectory().appendingPathComponent("audioFile.wav")
+    }
+    
+    private func startSilenceDetection() {
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { timer in
+            self.updateMeters()
+            
+            if self.isSilenceDetected() {
+                print("No voice detected")
+//                self.stopRecording()
+//                if self.silenceTimer == nil {
+                    // Start a timer to stop recording after silence duration is met
+//                    self.silenceTimer = Timer.scheduledTimer(timeInterval: self.silenceDuration, target: self, selector: #selector(self.stopRecording), userInfo: nil, repeats: false)
+//                }
+            } else {
+                print("Still has voice that has been detected")
+                // Reset the silence timer if sound is detected
+//                self.silenceTimer?.invalidate()
+//                self.silenceTimer = nil
+            }
+        }
+    }
+    
+    private func updateMeters() {
+        guard let recorder = audioRecorder else { return }
+        
+        recorder.updateMeters()
+        
+        let peakPower = recorder.peakPower(forChannel: 0)
+        
+        print("Peak Power for Channel 0: \(peakPower)")
+    }
+
+    private func isSilenceDetected() -> Bool {
+        guard let recorder = audioRecorder else { return false }
+        
+        let peakPower = recorder.peakPower(forChannel: 0)
+        
+        return peakPower < silenceThreshold
     }
 }
 

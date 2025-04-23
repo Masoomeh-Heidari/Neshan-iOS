@@ -9,6 +9,7 @@ import Foundation
 import FAlamofire
 
 
+//TODO: Add more structural integrity or coherence in network layer 
 enum SearchRouter {
     case search(_ term: String, _ lat: Double, _ lng: Double)
 }

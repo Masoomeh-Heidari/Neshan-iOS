@@ -16,6 +16,7 @@ class SearchViewModel: BaseViewModel {
     let searchResult = PassthroughSubject<[SearchItemDto]?, Never>()
     let selectedItem = PassthroughSubject<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto]), Never>()
     let cancel = PassthroughSubject<Void, Never>()
+    let isLoading = PassthroughSubject<Bool, Never>()
 
     // Properties for location
     let lat: Double
@@ -37,11 +38,14 @@ class SearchViewModel: BaseViewModel {
             .sink { [weak self] term in
                 guard !(term.isEmpty) else {
                     self?.searchResult.send(nil)
+                    self?.isLoading.send(false)
                     return
                 }
+                self?.isLoading.send(true)
                 
                 // Performing search operation
                 self?.service.search(by: term, lat: self?.lng ?? 0, lng: self?.lat ?? 0) { result in
+                    self?.isLoading.send(false)
                     switch result {
                     case .success(let list):
                         self?.searchResult.send(list)

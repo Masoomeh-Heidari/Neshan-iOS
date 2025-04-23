@@ -8,9 +8,11 @@
 import Foundation
 
 protocol SearchServiceProtocol {
-    typealias SearchCallBack = (Result<[SearchItemDto]?, AppError>) -> Void
+    typealias SearchCallBack = (Result<[SearchItemDto], AppError>) -> Void
+    typealias SendVoiceCallBack = (Result<String, AppError>) -> Void
     
     func search(by term: String, lat: Double, lng: Double, callback: @escaping SearchCallBack)
+    func sendVoice(by data: Data, callback: @escaping SendVoiceCallBack)
 }
 
 class SearchService: BaseService { }
@@ -24,15 +26,19 @@ extension SearchService: SearchServiceProtocol {
                         do {
                             let item = try self.decoder.decode(SearchResponseDto.self, from: data)
                             callback(.success(item.items))
-                        } catch let error {
+                        } catch {
                             callback(.failure(AppError.invalidResponse))
                         }
                     }else {
-                        callback(.success(nil))
+                        callback(.failure(AppError.invalidResponse))
                     }
                 case .failure(let error):
                     callback(.failure(error))
             }
         }
+    }
+    
+    func sendVoice(by data: Data, callback: @escaping SendVoiceCallBack) {
+        
     }
 }

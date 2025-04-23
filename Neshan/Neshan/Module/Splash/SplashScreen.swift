@@ -23,6 +23,5 @@ class SplashScreen: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.viewModel.goToTabbar.send(())
-        self.viewModel.goToTabbar.send(completion: .finished)
     }
 }

@@ -11,25 +11,26 @@ import UIKit
 class MapCoordinator: BaseCoordinator<Void> {
     
     private let navigationController: UINavigationController
-        
+    let vm = MapViewModel()
+
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
     
     override func start() -> AnyPublisher<Void, Never> {
-        let vm = MapViewModel()
         let vc = MapScreen(viewModel: vm)
         
-        // React to showSearch with Combine
         vm.showSearch
             .flatMap { [weak self] location -> AnyPublisher<(term: String, selectedItem: SearchItemDto, result: [SearchItemDto])?, Never> in
                 guard let self = self else {
                     return Just(nil).eraseToAnyPublisher()
                 }
-                return self.goToSearchScreen(using: location, rootViewController: vc)
-            }.compactMap { $0 } // Remove nils
-            .sink { result in
-                vm.showSearchBox.send(result)
+                return self.goToSearchScreen(using: location, rootViewController: vc).eraseToAnyPublisher()
+            }
+            .compactMap { $0 }
+            .sink {[weak self] result in
+                guard let self = self else { return }
+                self.vm.showSearchBox.send(result)
             }
             .store(in: &cancellables)
         
@@ -55,6 +56,7 @@ extension MapCoordinator {
                 case .done(let item):
                     return item as? (term: String, selectedItem: SearchItemDto, result: [SearchItemDto])
                 case .cancel, .error:
+                    //TODO: Handle errors 
                     return nil
                 }
             }
