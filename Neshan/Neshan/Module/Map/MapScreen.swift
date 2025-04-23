@@ -29,9 +29,6 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     var timer: Timer?
     var elapsedTime: TimeInterval = 0
     
-    var playTapped = PassthroughSubject<Void, Never>()
-    var stopTapped = PassthroughSubject<Void, Never>()
-    
     var lat: Double = 51.33855846247923
     var lng: Double = 35.69992585886045
     
@@ -52,7 +49,8 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     var routes: [RouteViewModel] = []
     var duration: String = ""
     var labelLayer: NTVectorElementLayer?
-    
+    let sheet = AudioBottomSheet()
+
     //MARK: - Lazy Vars
     
     lazy var currenLocalButton: UIButton = {
@@ -205,16 +203,21 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
             .store(in: &cancellables)
         
         //record binding
-        self.playTapped.sink { [weak self] in
-            self?.playAudio()
+        sheet.playTappedPublisher.sink { [weak self] in
+            guard let self else { return }
+            self.playAudio()
         } .store(in: &cancellables)
         
-        self.stopTapped.sink { [weak self] in
-            self?.stopRecording()
-            self?.stopTimer()
+        sheet.stopTappedPublisher.sink { [weak self] in
+            guard let self else { return }
+            self.stopRecording()
+            self.stopTimer()
         } .store(in: &cancellables)
         
-        
+        sheet.uploadTappedPublisher.sink {[weak self] _ in
+            guard let self else { return }
+            self.uploadAudioFile()
+        }.store(in: &cancellables)
     }
     
     fileprivate func initMap() {
@@ -287,7 +290,7 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         mapView?.addSubview(currenLocalButton)
         NSLayoutConstraint.activate([
             currenLocalButton.trailingAnchor.constraint(equalTo: mapView!.trailingAnchor, constant: -16),
-            currenLocalButton.bottomAnchor.constraint(equalTo: searchFieldContainer.topAnchor, constant: -16),
+            currenLocalButton.bottomAnchor.constraint(equalTo: searchContainerView.topAnchor, constant: -16),
             currenLocalButton.widthAnchor.constraint(equalToConstant: 30),
             currenLocalButton.heightAnchor.constraint(equalToConstant: 30)
         ])
@@ -372,6 +375,29 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         addMarkerToMap(location: coordinate,
                        icon: UIImage(resource: .currentLocation),
                        id: "userCurrentLocation")
+    }
+    
+    
+    func uploadAudioFile() {
+        let helper = AudioUploadHelper()
+        helper.uploadFile(using: self.getAudioURL(), to: "process") {[weak self] counter in
+            guard let self else { return }
+            let hours = Int(counter / 3600)
+            let minutes = Int((counter.truncatingRemainder(dividingBy: 3600)) / 60)
+            let seconds = Int(counter.truncatingRemainder(dividingBy: 60))
+            
+            let time = String(format: "%02d:%02d", minutes, seconds)
+            sheet.updateTimerLabel(with: time)
+        } completion: {[weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let term):
+                guard let term else { return }
+                sheet.updateTimerLabel(with: term)
+            case .failure(let error):
+                print("Upload failed: \(error)")
+            }
+        }
     }
     
     func addMarkerToMap(location: CLLocationCoordinate2D, icon: UIImage, id: String) {
@@ -565,7 +591,7 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     }
     
     func configureRecorder() {
-        let url = MapScreen.getAudioURL()
+        let url = self.getAudioURL()
         let settings: [String: Any] = [
             AVFormatIDKey: kAudioFormatLinearPCM,
             AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue,
@@ -600,13 +626,11 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     }
     
     func showAudioBottomSheet() {
-        let sheet = AudioBottomSheet()
         sheet.modalPresentationStyle = .pageSheet
         if let sheetController = sheet.sheetPresentationController {
             sheetController.detents = [.medium()]
         }
-        sheet.playTappedPublisher = playTapped
-        sheet.stopTappedPublisher = stopTapped
+
         configureRecorder()
         audioRecorder?.record()
         isRecording = true
@@ -630,7 +654,7 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     }
     
     func playAudio() {
-        let url = MapScreen.getAudioURL()
+        let url = self.getAudioURL()
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer.delegate = self
@@ -641,13 +665,13 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         }
     }
     
-    class func getDocumentsDirectory() -> URL {
+    private func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsDirectory = paths[0]
         return documentsDirectory
     }
     
-    class func getAudioURL() -> URL {
+    private func getAudioURL() -> URL {
         return getDocumentsDirectory().appendingPathComponent("audioFile.wav")
     }
 }
