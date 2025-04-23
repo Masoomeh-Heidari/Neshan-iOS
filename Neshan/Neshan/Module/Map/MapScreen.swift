@@ -23,12 +23,16 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     private var audioPlayer : AVAudioPlayer!
     private var recordingSession : AVAudioSession!
     
-    private var silenceThreshold: Float = -20.0
+    private var silenceThreshold: Float = -30.0  // Adjusted threshold for better noise cancellation
     private var silenceTimer: Timer?
-    private var silenceDuration: TimeInterval = 0.5
+    private var silenceDuration: TimeInterval = 1.5  // Increased duration to avoid false positives
+    private var noiseReductionEnabled: Bool = true
+    private var consecutiveSilenceCount: Int = 0
+    private var requiredSilenceCount: Int = 3  // Number of consecutive silence detections before pausing
     
     private var isRecording: Bool = false
     private var isPlaying: Bool = false
+    private var isPaused: Bool = false
     
     var timer: Timer?
     var elapsedTime: TimeInterval = 0
@@ -654,9 +658,17 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     }
     
     @objc func stopRecording() {
+        // Cancel silence detection timer
+        silenceTimer?.invalidate()
+        silenceTimer = nil
+        
+        // Stop the recorder
         audioRecorder?.stop()
         isRecording = false
-        silenceTimer?.invalidate()
+        isPaused = false
+        
+        // Stop the timer
+        stopTimer()
     }
     
     func playAudio() {
@@ -682,21 +694,40 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     }
     
     private func startSilenceDetection() {
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { timer in
+        // Cancel any existing silence detection timer
+        silenceTimer?.invalidate()
+        silenceTimer = nil
+        
+        // Reset silence detection variables
+        consecutiveSilenceCount = 0
+        isPaused = false
+        
+        // Start a timer to check for silence periodically
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
             self.updateMeters()
             
             if self.isSilenceDetected() {
-                print("No voice detected")
-//                self.stopRecording()
-//                if self.silenceTimer == nil {
-                    // Start a timer to stop recording after silence duration is met
-//                    self.silenceTimer = Timer.scheduledTimer(timeInterval: self.silenceDuration, target: self, selector: #selector(self.stopRecording), userInfo: nil, repeats: false)
-//                }
+                self.consecutiveSilenceCount += 1
+                print("Silence detected: \(self.consecutiveSilenceCount)/\(self.requiredSilenceCount)")
+                
+                // If we've detected silence for the required number of consecutive checks
+                if self.consecutiveSilenceCount >= self.requiredSilenceCount && !self.isPaused {
+                    print("Pausing recording due to extended silence")
+                    self.pauseRecording()
+                }
             } else {
-                print("Still has voice that has been detected")
-                // Reset the silence timer if sound is detected
-//                self.silenceTimer?.invalidate()
-//                self.silenceTimer = nil
+                // Reset silence counter when sound is detected
+                if self.consecutiveSilenceCount > 0 {
+                    print("Sound detected, resetting silence counter")
+                    self.consecutiveSilenceCount = 0
+                    
+                    // Resume recording if it was paused
+                    if self.isPaused {
+                        self.resumeRecording()
+                    }
+                }
             }
         }
     }
@@ -708,7 +739,14 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         
         let peakPower = recorder.peakPower(forChannel: 0)
         
-        print("Peak Power for Channel 0: \(peakPower)")
+        // Apply noise reduction if enabled
+        if noiseReductionEnabled {
+            // Log the raw peak power for debugging
+            print("Raw Peak Power: \(peakPower)")
+            
+            // We could implement more sophisticated noise reduction here
+            // For now, we're just using the threshold
+        }
     }
 
     private func isSilenceDetected() -> Bool {
@@ -716,7 +754,36 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         
         let peakPower = recorder.peakPower(forChannel: 0)
         
+        // Return true if the peak power is below our threshold
         return peakPower < silenceThreshold
+    }
+    
+    private func pauseRecording() {
+        guard isRecording && !isPaused else { return }
+        
+        audioRecorder?.pause()
+        isPaused = true
+        
+        // Update UI to show paused state
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.sheet.updateTimerLabel(with: "Recording paused...")
+        }
+    }
+    
+    private func resumeRecording() {
+        guard isRecording && isPaused else { return }
+        
+        audioRecorder?.record()
+        isPaused = false
+        
+        // Update UI to show recording state
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            let min = Int(self.elapsedTime) / 60
+            let sec = Int(self.elapsedTime) % 60
+            self.sheet.updateTimerLabel(with: String(format: "%02d:%02d", min, sec))
+        }
     }
 }
 
