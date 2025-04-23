@@ -16,15 +16,19 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     private var cancellables = Set<AnyCancellable>()
     
     var mapView:NTMapView!
-    //    var locationManager:CLLocationManager!
     var infoBox: DestinationInfosView!
     
     // Audio vars
-    var audioRecorder : AVAudioRecorder!
-    var audioPlayer : AVAudioPlayer!
-    var recordingSession : AVAudioSession!
-    var isRecording: Bool = false
-    var isPlaying: Bool = false
+    private var audioRecorder : AVAudioRecorder!
+    private var audioPlayer : AVAudioPlayer!
+    private var recordingSession : AVAudioSession!
+    
+    private var silenceThreshold: Float = -20.0
+    private var silenceTimer: Timer?
+    private var silenceDuration: TimeInterval = 0.5
+    
+    private var isRecording: Bool = false
+    private var isPlaying: Bool = false
     
     var timer: Timer?
     var elapsedTime: TimeInterval = 0
@@ -634,6 +638,7 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         configureRecorder()
         audioRecorder?.record()
         isRecording = true
+        startSilenceDetection()
         startTimer { [weak sheet] time in
             sheet?.updateTimerLabel(with: time)
         }
@@ -648,9 +653,10 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
         isPlaying = false
     }
     
-    func stopRecording() {
+    @objc func stopRecording() {
         audioRecorder?.stop()
         isRecording = false
+        silenceTimer?.invalidate()
     }
     
     func playAudio() {
@@ -673,6 +679,44 @@ class MapScreen: UIViewController, UIGestureRecognizerDelegate, AVAudioRecorderD
     
     private func getAudioURL() -> URL {
         return getDocumentsDirectory().appendingPathComponent("audioFile.wav")
+    }
+    
+    private func startSilenceDetection() {
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { timer in
+            self.updateMeters()
+            
+            if self.isSilenceDetected() {
+                print("No voice detected")
+//                self.stopRecording()
+//                if self.silenceTimer == nil {
+                    // Start a timer to stop recording after silence duration is met
+//                    self.silenceTimer = Timer.scheduledTimer(timeInterval: self.silenceDuration, target: self, selector: #selector(self.stopRecording), userInfo: nil, repeats: false)
+//                }
+            } else {
+                print("Still has voice that has been detected")
+                // Reset the silence timer if sound is detected
+//                self.silenceTimer?.invalidate()
+//                self.silenceTimer = nil
+            }
+        }
+    }
+    
+    private func updateMeters() {
+        guard let recorder = audioRecorder else { return }
+        
+        recorder.updateMeters()
+        
+        let peakPower = recorder.peakPower(forChannel: 0)
+        
+        print("Peak Power for Channel 0: \(peakPower)")
+    }
+
+    private func isSilenceDetected() -> Bool {
+        guard let recorder = audioRecorder else { return false }
+        
+        let peakPower = recorder.peakPower(forChannel: 0)
+        
+        return peakPower < silenceThreshold
     }
 }
 
